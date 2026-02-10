@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "samsungtv",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "news": {
+      "0.0.4": {
+        "en": "Improve auto instance creation on install (robust iobroker CLI detection)",
+        "de": "Automatische Instanz-Erstellung beim Installieren verbessert (robuste iobroker-CLI-Erkennung)"
+      },
       "0.0.3": {
         "en": "Remove deprecated dependency and auto-create instance on install",
         "de": "Veraltete Abhängigkeit entfernt und Instanz automatisch beim Installieren angelegt"
