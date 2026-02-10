@@ -49,6 +49,20 @@ Pro TV:
 - `control.launchApp`: App-ID (Tizen) aus der TV-App-Liste
 - `control.source`: Quelle als Key (`KEY_HDMI`, `KEY_SOURCE`) oder Kurzform (`HDMI`)
 
+### Key-Codes (control.key)
+`control.key` akzeptiert entweder **Samsung Key-Codes** (`KEY_*`) oder **freundliche Kurzformen**:
+- Navigation: `up`, `down`, `left`, `right`, `enter`, `back`
+- System: `home`, `source`, `menu`, `info`, `guide`, `exit`
+- Lautstärke/Kanal: `volup`, `voldown`, `mute`, `chup`, `chdown`
+- Media: `play`, `pause`, `stop`, `rewind`, `ff`, `record`
+- Farben: `red`, `green`, `yellow`, `blue`
+- Ziffern: `0` bis `9`
+
+Direkte Key-Codes funktionieren ebenfalls:
+- Beispiele: `KEY_UP`, `KEY_DOWN`, `KEY_ENTER`, `KEY_RETURN`, `KEY_HOME`, `KEY_SOURCE`
+
+Hinweis: Nicht jeder TV unterstützt jeden Key. Manche Keys wirken nur, wenn ein Menü/Fokus aktiv ist.
+
 ## Hinweise
 - Discovery ist best effort. SSDP ist primär, mDNS optional.
 - Ältere Geräte werden nach Möglichkeit erkannt (HJ/Legacy), Feature-Umfang kann variieren.

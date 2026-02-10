@@ -1,8 +1,28 @@
 {
   "common": {
     "name": "samsungtv",
-    "version": "0.0.6",
+    "version": "0.0.11",
     "news": {
+      "0.0.11": {
+        "en": "Accept friendly key names in control.key",
+        "de": "Lesbare Tastennamen in control.key akzeptieren"
+      },
+      "0.0.10": {
+        "en": "Update power state immediately on user action",
+        "de": "Power-Status sofort bei Benutzeraktion aktualisieren"
+      },
+      "0.0.9": {
+        "en": "Mirror power status into control state",
+        "de": "Power-Status in Control-Status spiegeln"
+      },
+      "0.0.8": {
+        "en": "Improve power state detection for Tizen and power-on behavior",
+        "de": "Power-State-Erkennung (Tizen) und Einschaltverhalten verbessert"
+      },
+      "0.0.7": {
+        "en": "Add manual device entry in admin UI",
+        "de": "Manuelle Ger\u00e4teanlage im Admin-UI hinzugef\u00fcgt"
+      },
       "0.0.6": {
         "en": "Add detailed debug logging for discovery, probing and pairing",
         "de": "Detailliertes Debug-Logging f\u00fcr Discovery, Probe und Pairing hinzugef\u00fcgt"

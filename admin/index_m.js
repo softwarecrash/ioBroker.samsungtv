@@ -21,17 +21,24 @@ systemDictionary = {
     "Enable Wake-on-LAN": { "de": "Wake-on-LAN aktivieren" },
     "Power Poll Interval (s)": { "de": "Power-Poll-Intervall (s)" },
     "Discovered TVs": { "de": "Gefundene TVs" },
+    "Manual Add": { "de": "Manuelles Hinzuf\u00fcgen" },
     "Scan": { "de": "Scannen" },
     "Added TVs": { "de": "Hinzugefügte TVs" },
     "Name": { "de": "Name" },
     "IP": { "de": "IP" },
+    "MAC (optional)": { "de": "MAC (optional)" },
     "Model": { "de": "Modell" },
     "ID": { "de": "ID" },
     "API": { "de": "API" },
+    "API (tizen/hj/auto)": { "de": "API (tizen/hj/auto)" },
+    "Protocol (wss/ws/auto)": { "de": "Protokoll (wss/ws/auto)" },
+    "Port (optional)": { "de": "Port (optional)" },
+    "Device ID/UUID (optional)": { "de": "Ger\u00e4te-ID/UUID (optional)" },
     "Found Via": { "de": "Gefunden über" },
     "Action": { "de": "Aktion" },
     "Paired": { "de": "Gepairt" },
     "Add": { "de": "Hinzufügen" },
+    "Add device": { "de": "Ger\u00e4t hinzuf\u00fcgen" },
     "Remove": { "de": "Entfernen" },
     "Pair": { "de": "Pair" },
     "Set Token": { "de": "Token setzen" },
@@ -46,7 +53,10 @@ systemDictionary = {
     "Last scan": { "de": "Letzter Scan" },
     "Pairing failed": { "de": "Pairing fehlgeschlagen" },
     "Discovery failed": { "de": "Suche fehlgeschlagen" },
-    "Enter the PIN shown on the TV:": { "de": "Bitte die PIN eingeben, die am TV angezeigt wird:" }
+    "Enter the PIN shown on the TV:": { "de": "Bitte die PIN eingeben, die am TV angezeigt wird:" },
+    "Please provide IP or MAC.": { "de": "Bitte IP oder MAC angeben." },
+    "Device already exists.": { "de": "Ger\u00e4t existiert bereits." },
+    "MAC helps to track DHCP changes.": { "de": "MAC hilft bei DHCP-\u00c4nderungen." }
 };
 
 function sanitizeName(name) {
@@ -59,6 +69,25 @@ function sanitizeName(name) {
         .replace(/-+$/, "")
         .replace(/--+/g, "-");
     return cleaned;
+}
+
+function normalizeMacInput(value) {
+    return (value || "").trim().toLowerCase();
+}
+
+function normalizeApiInput(value) {
+    const v = (value || "").trim().toLowerCase();
+    if (v === "tizen") return "tizen";
+    if (v === "hj") return "hj";
+    if (v === "legacy") return "legacy";
+    if (v === "auto" || v === "unknown" || v === "") return "unknown";
+    return "unknown";
+}
+
+function normalizeProtocolInput(value) {
+    const v = (value || "").trim().toLowerCase();
+    if (v === "ws" || v === "wss") return v;
+    return "";
 }
 
 function parseTokens(tokensStr) {
@@ -105,6 +134,7 @@ function load(settings, onChange) {
     fetchDiscovered();
 
     $("#btn-scan").off("click").on("click", () => scanDevices());
+    $("#btn-add-manual").off("click").on("click", () => addManualDevice());
     onChange(false);
     if (typeof M !== "undefined" && M.updateTextFields) {
         M.updateTextFields();
@@ -243,6 +273,67 @@ function addDeviceFromDiscovery(d) {
 
     onChangeCb && onChangeCb();
     renderDevices();
+}
+
+function addManualDevice() {
+    const nameInput = ($("#manualName").val() || "").trim();
+    const ip = ($("#manualIp").val() || "").trim();
+    const mac = normalizeMacInput($("#manualMac").val());
+    const idInput = ($("#manualId").val() || "").trim();
+    const api = normalizeApiInput($("#manualApi").val());
+    const protocol = normalizeProtocolInput($("#manualProtocol").val());
+    const port = parseInt($("#manualPort").val(), 10) || 0;
+
+    if (!ip && !mac) {
+        alert(_("Please provide IP or MAC."));
+        return;
+    }
+
+    const id = (idInput || mac || ip || "").trim();
+    if (!id) {
+        alert(_("Please provide IP or MAC."));
+        return;
+    }
+
+    if (devices.find((x) => x.id === id)) {
+        alert(_("Device already exists."));
+        return;
+    }
+
+    const displayName = nameInput || ip || mac || `tv-${id.slice(0, 6)}`;
+    const safeName = sanitizeName(displayName) || `tv-${id.slice(0, 6)}`;
+
+    devices.push({
+        id,
+        name: safeName,
+        displayName,
+        ip,
+        mac,
+        model: "",
+        api,
+        protocol,
+        port,
+        uuid: "",
+        source: "manual"
+    });
+
+    onChangeCb && onChangeCb();
+    renderDevices();
+    clearManualForm();
+}
+
+function clearManualForm() {
+    $("#manualName").val("");
+    $("#manualIp").val("");
+    $("#manualMac").val("");
+    $("#manualId").val("");
+    $("#manualProtocol").val("");
+    $("#manualPort").val("");
+    $("#manualApi").val("tizen");
+    activateLabels();
+    if (typeof M !== "undefined" && M.updateTextFields) {
+        M.updateTextFields();
+    }
 }
 
 function removeDevice(idx) {

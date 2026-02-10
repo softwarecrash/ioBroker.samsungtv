@@ -91,6 +91,14 @@ function normalizeMac(mac) {
     return mac.trim().toLowerCase();
 }
 
+function normalizeDeviceId(id) {
+    const norm = normalizeId(id);
+    if (/^([0-9a-f]{2}:){5}[0-9a-f]{2}$/i.test(norm)) {
+        return normalizeMac(norm);
+    }
+    return norm;
+}
+
 function loadTokensFromConfig() {
     tokens = { tizen: {}, hj: {} };
     if (!adapter.config.tokens) return;
@@ -158,7 +166,15 @@ function getConfiguredDevices() {
 
     for (const raw of list) {
         if (!raw || typeof raw !== "object") continue;
-        const id = normalizeId(raw.id || raw.uuid || raw.usn || "");
+        const rawMac = normalizeMac(raw.mac || "");
+        let id = normalizeId(raw.id || raw.uuid || raw.usn || "");
+        if ((!id || looksLikeIp(id)) && rawMac) {
+            id = rawMac;
+        }
+        if (!id) {
+            id = normalizeId(raw.ip || "");
+        }
+        id = normalizeDeviceId(id);
         if (!id) {
             adapter.log.warn("Skipping device without stable id in config.");
             continue;
@@ -433,9 +449,10 @@ function isDevicePaired(device) {
 async function pollDevices() {
     for (const device of devicesById.values()) {
         try {
-            const online = await checkDeviceOnline(device);
-            await adapter.setStateAsync(`${device.name}.info.online`, online, true);
-            await adapter.setStateAsync(`${device.name}.state.power`, online, true);
+            const status = await checkDeviceStatus(device);
+            await adapter.setStateAsync(`${device.name}.info.online`, status.online, true);
+            await adapter.setStateAsync(`${device.name}.state.power`, status.power, true);
+            await adapter.setStateAsync(`${device.name}.control.power`, status.power, true);
         } catch (e) {
             // ignore
         }
@@ -443,47 +460,99 @@ async function pollDevices() {
 }
 
 async function checkDeviceOnline(device) {
-    if (!device.ip) {
-        await refreshIpFromMac(device);
-        if (!device.ip) return false;
-    }
-
-    let online = await checkDeviceOnlineWithIp(device);
-    if (!online && device.mac) {
-        const updated = await refreshIpFromMac(device);
-        if (updated) {
-            online = await checkDeviceOnlineWithIp(device);
-        }
-    }
-    return online;
+    const status = await checkDeviceStatus(device);
+    return status.online;
 }
 
-async function checkDeviceOnlineWithIp(device) {
-    if (!device.ip) return false;
+function extractPowerState(info) {
+    if (!info || typeof info !== "object") return "";
+    const device = info.device || info || {};
+    const candidates = [
+        device.PowerState,
+        device.powerState,
+        device.powerstate,
+        info.PowerState,
+        info.powerState,
+        info.powerstate
+    ];
+    for (const value of candidates) {
+        if (typeof value === "string" && value.trim()) {
+            return value.trim().toLowerCase();
+        }
+    }
+    return "";
+}
+
+function interpretPowerState(value) {
+    if (!value) return null;
+    const v = value.toLowerCase();
+    if (["on", "active", "wake", "awake"].includes(v)) return true;
+    if (["standby", "off", "inactive", "sleep"].includes(v)) return false;
+    return null;
+}
+
+async function checkDeviceStatus(device) {
+    if (!device.ip) {
+        await refreshIpFromMac(device);
+        if (!device.ip) return { online: false, power: false };
+    }
+
+    let status = await checkDeviceStatusWithIp(device);
+    if (!status.online && device.mac) {
+        const updated = await refreshIpFromMac(device);
+        if (updated) {
+            status = await checkDeviceStatusWithIp(device);
+        }
+    }
+    return status;
+}
+
+async function checkDeviceStatusWithIp(device) {
+    if (!device.ip) return { online: false, power: false };
 
     if (device.api === "tizen") {
         const info = await fetchTizenInfo(device.ip, device.protocol || "wss", device.port || 8002, 1500);
         if (info) {
+            const powerState = extractPowerState(info);
+            const power = interpretPowerState(powerState);
+            if (!device.mac) {
+                const mac = normalizeMac(info?.device?.wifiMac || info?.device?.mac || "");
+                if (mac) {
+                    device.mac = mac;
+                    devicesByMac.set(device.mac, device);
+                    await updateDeviceInfoStates(device);
+                }
+            }
             markSeen(device);
-            return true;
+            return { online: true, power: power === null ? true : power };
         }
         // fallback to 8001
         const info2 = await fetchTizenInfo(device.ip, "ws", 8001, 1500);
         if (info2) {
+            const powerState = extractPowerState(info2);
+            const power = interpretPowerState(powerState);
+            if (!device.mac) {
+                const mac = normalizeMac(info2?.device?.wifiMac || info2?.device?.mac || "");
+                if (mac) {
+                    device.mac = mac;
+                    devicesByMac.set(device.mac, device);
+                    await updateDeviceInfoStates(device);
+                }
+            }
             markSeen(device);
-            return true;
+            return { online: true, power: power === null ? true : power };
         }
     } else if (device.api === "hj") {
         const ok = await checkPort(device.ip, 8000, 1500);
         if (ok) {
             markSeen(device);
-            return true;
+            return { online: true, power: true };
         }
     } else if (device.api === "legacy") {
         const ok = await checkPort(device.ip, 55000, 1500);
         if (ok) {
             markSeen(device);
-            return true;
+            return { online: true, power: true };
         }
     }
 
@@ -491,9 +560,9 @@ async function checkDeviceOnlineWithIp(device) {
     const okGeneric = await checkPort(device.ip, 8001, 1000);
     if (okGeneric) {
         markSeen(device);
-        return true;
+        return { online: true, power: true };
     }
-    return false;
+    return { online: false, power: false };
 }
 
 function markSeen(device) {
@@ -529,6 +598,7 @@ async function handleControl(device, id, command, value) {
         case "power":
             await setPower(device, !!value);
             await adapter.setStateAsync(id, !!value, true);
+            await adapter.setStateAsync(`${device.name}.state.power`, !!value, true);
             return;
         case "wol":
             if (adapter.config.enableWol && device.mac) {
@@ -538,7 +608,10 @@ async function handleControl(device, id, command, value) {
             return;
         case "key":
             if (typeof value === "string" && value.trim()) {
-                await sendKey(device, value.trim());
+                const key = normalizeKeyInput(value);
+                if (key) {
+                    await sendKey(device, key);
+                }
                 await adapter.setStateAsync(id, "", true);
             }
             return;
@@ -581,18 +654,88 @@ function isTruthyValue(val) {
     return val === true || val === 1 || val === "true";
 }
 
+function normalizeKeyInput(input) {
+    if (!input || typeof input !== "string") return "";
+    const raw = input.trim();
+    if (!raw) return "";
+    const upper = raw.toUpperCase();
+    if (upper.startsWith("KEY_")) return upper;
+
+    const normalized = raw.toLowerCase().replace(/\s+/g, "");
+    const map = {
+        up: "KEY_UP",
+        arrowup: "KEY_UP",
+        down: "KEY_DOWN",
+        arrowdown: "KEY_DOWN",
+        left: "KEY_LEFT",
+        arrowleft: "KEY_LEFT",
+        right: "KEY_RIGHT",
+        arrowright: "KEY_RIGHT",
+        enter: "KEY_ENTER",
+        ok: "KEY_ENTER",
+        back: "KEY_RETURN",
+        return: "KEY_RETURN",
+        home: "KEY_HOME",
+        source: "KEY_SOURCE",
+        menu: "KEY_MENU",
+        info: "KEY_INFO",
+        guide: "KEY_GUIDE",
+        exit: "KEY_EXIT",
+        volup: "KEY_VOLUP",
+        volumeup: "KEY_VOLUP",
+        voldown: "KEY_VOLDOWN",
+        volumedown: "KEY_VOLDOWN",
+        mute: "KEY_MUTE",
+        chup: "KEY_CHUP",
+        channelup: "KEY_CHUP",
+        chdown: "KEY_CHDOWN",
+        channeldown: "KEY_CHDOWN",
+        play: "KEY_PLAY",
+        pause: "KEY_PAUSE",
+        stop: "KEY_STOP",
+        rewind: "KEY_REWIND",
+        ff: "KEY_FF",
+        fastforward: "KEY_FF",
+        record: "KEY_REC",
+        red: "KEY_RED",
+        green: "KEY_GREEN",
+        yellow: "KEY_YELLOW",
+        blue: "KEY_BLUE",
+        "0": "KEY_0",
+        "1": "KEY_1",
+        "2": "KEY_2",
+        "3": "KEY_3",
+        "4": "KEY_4",
+        "5": "KEY_5",
+        "6": "KEY_6",
+        "7": "KEY_7",
+        "8": "KEY_8",
+        "9": "KEY_9"
+    };
+
+    return map[normalized] || upper;
+}
+
 async function setPower(device, on) {
-    const online = await checkDeviceOnline(device);
+    const status = await checkDeviceStatus(device);
     if (on) {
-        if (online) {
+        if (status.power) {
             return;
+        }
+        if (status.online) {
+            try {
+                await sendKey(device, "KEY_POWER");
+                return;
+            } catch (e) {
+                // fallback to WOL
+            }
         }
         if (adapter.config.enableWol && device.mac) {
             wol.wake(device.mac);
         }
         return;
     }
-    if (online) {
+    if (status.power) {
         await sendKey(device, "KEY_POWER");
     }
 }
