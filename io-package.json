@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "samsungtv",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "news": {
+      "0.0.5": {
+        "en": "Fix admin UI scrolling so footer buttons are visible",
+        "de": "Admin-UI-Scrollbereich korrigiert, sodass die Footer-Buttons sichtbar sind"
+      },
       "0.0.4": {
         "en": "Improve auto instance creation on install (robust iobroker CLI detection)",
         "de": "Automatische Instanz-Erstellung beim Installieren verbessert (robuste iobroker-CLI-Erkennung)"

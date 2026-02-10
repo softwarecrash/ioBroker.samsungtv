@@ -1,6 +1,6 @@
 {
   "name": "iobroker.samsungtv",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Modern Samsung TV adapter with discovery and multi-device support",
   "author": "softwarecrash",
   "contributors": [],
