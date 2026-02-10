@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "samsungtv",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "news": {
+      "0.0.6": {
+        "en": "Add detailed debug logging for discovery, probing and pairing",
+        "de": "Detailliertes Debug-Logging f\u00fcr Discovery, Probe und Pairing hinzugef\u00fcgt"
+      },
       "0.0.5": {
         "en": "Fix admin UI scrolling so footer buttons are visible",
         "de": "Admin-UI-Scrollbereich korrigiert, sodass die Footer-Buttons sichtbar sind"

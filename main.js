@@ -717,6 +717,7 @@ async function tizenWsRequest(url, payload) {
 
         ws.on("error", (err) => {
             clearTimeout(timeout);
+            adapter.log.debug(`WS error: ${safeUrl}: ${err.message}`);
             reject(err);
         });
 
@@ -752,6 +753,7 @@ async function tizenWsRequest(url, payload) {
 }
 
 async function pairTizen(device) {
+    adapter.log.debug(`Pairing (Tizen) started for ${device.name} (${device.ip})`);
     const nameBase64 = Buffer.from("ioBroker").toString("base64");
     const urls = [
         { url: `wss://${device.ip}:8002/api/v2/channels/samsung.remote.control?name=${nameBase64}`, secure: true },
@@ -762,8 +764,10 @@ async function pairTizen(device) {
     for (const candidate of urls) {
         try {
             const token = await pairTizenWithUrl(candidate.url, candidate.secure);
+            adapter.log.debug(`Pairing (Tizen) succeeded for ${device.name} via ${candidate.secure ? "wss" : "ws"}`);
             return token;
         } catch (e) {
+            adapter.log.debug(`Pairing (Tizen) failed for ${device.name} via ${candidate.secure ? "wss" : "ws"}: ${e.message}`);
             lastError = e;
         }
     }
@@ -780,7 +784,12 @@ async function pairTizenWithUrl(url, secure) {
 
         ws.on("error", (err) => {
             clearTimeout(timeout);
+            adapter.log.debug(`Pairing WS error: ${err.message}`);
             reject(err);
+        });
+
+        ws.on("open", () => {
+            adapter.log.debug(`Pairing WS connected (${secure ? "wss" : "ws"})`);
         });
 
         ws.on("message", (data) => {
@@ -803,10 +812,12 @@ async function pairTizenWithUrl(url, secure) {
 
 async function pairHj(device, pin) {
     if (!pin) throw new Error("Missing PIN");
+    adapter.log.debug(`Pairing (HJ) started for ${device.name} (${device.ip})`);
     const tv = new SamsungHJ({ ...HJ_DEVICE_CONFIG, ip: device.ip });
     await tv.init2();
     await tv.requestPin();
     const identity = await tv.confirmPin(pin);
+    adapter.log.debug(`Pairing (HJ) succeeded for ${device.name}`);
     return identity;
 }
 
@@ -833,6 +844,7 @@ async function onMessage(obj) {
     if (obj.command === "pair") {
         const deviceId = obj.message && obj.message.id;
         const pin = obj.message && obj.message.pin;
+        adapter.log.debug(`Pairing request received for ${deviceId || "unknown device"}`);
         let device = devicesById.get(deviceId);
         if (!device && obj.message && obj.message.device) {
             const d = obj.message.device;
@@ -871,6 +883,7 @@ async function onMessage(obj) {
                 adapter.sendTo(obj.from, obj.command, { ok: true, token }, obj.callback);
             }
         } catch (e) {
+            adapter.log.debug(`Pairing failed for ${device.name}: ${e.message}`);
             adapter.sendTo(obj.from, obj.command, { ok: false, error: e.message }, obj.callback);
         }
         return;
@@ -881,13 +894,24 @@ async function performDiscovery(updateKnownDevices, timeoutOverride) {
     const timeout = Math.max(2, parseInt(timeoutOverride || adapter.config.discoveryTimeout, 10) || 5) * 1000;
     const discovered = [];
 
+    adapter.log.debug(
+        `Discovery started (ssdp=${!!adapter.config.enableSsdp}, mdns=${!!adapter.config.enableMdns}, timeout=${timeout / 1000}s)`
+    );
+
+    let ssdpCount = 0;
+    let mdnsCount = 0;
+
     if (adapter.config.enableSsdp) {
         const ssdp = await discoverSsdp(timeout);
+        ssdpCount = ssdp.length;
+        adapter.log.debug(`SSDP discovery finished: ${ssdpCount} candidates`);
         discovered.push(...ssdp);
     }
 
     if (adapter.config.enableMdns) {
         const mdns = await discoverMdns(timeout);
+        mdnsCount = mdns.length;
+        adapter.log.debug(`mDNS discovery finished: ${mdnsCount} candidates`);
         discovered.push(...mdns);
     }
 
@@ -928,6 +952,9 @@ async function performDiscovery(updateKnownDevices, timeoutOverride) {
     }
 
     lastDiscovery = Date.now();
+    adapter.log.debug(
+        `Discovery finished: ssdp=${ssdpCount}, mdns=${mdnsCount}, unique=${byIp.size}, probed=${results.length}`
+    );
     return results;
 }
 
@@ -941,6 +968,10 @@ async function discoverSsdp(timeoutMs) {
             const usn = headers.USN || headers.Usn || headers.usn || "";
             const location = headers.LOCATION || headers.Location || headers.location || "";
             if (!/samsung/i.test(`${server} ${st} ${usn}`)) return;
+
+            adapter.log.debug(
+                `SSDP response: ip=${rinfo.address} st=${st || "-"} usn=${usn || "-"} server=${server || "-"}`
+            );
 
             results.push({
                 ip: rinfo.address,
@@ -968,6 +999,8 @@ async function discoverMdns(timeoutMs) {
 
     if (!services.length) return [];
 
+    adapter.log.debug(`mDNS discovery started for services: ${services.join(", ")}`);
+
     const bonjour = new Bonjour();
     const results = new Map();
     const browsers = [];
@@ -984,6 +1017,9 @@ async function discoverMdns(timeoutMs) {
             const addresses = Array.isArray(service.addresses) ? service.addresses : [];
             for (const ip of addresses) {
                 if (!ip || ip.includes(":")) continue; // ignore IPv6 for now
+                adapter.log.debug(
+                    `mDNS service: ${svc} name=${service.name || "-"} ip=${ip} manufacturer=${manufacturer || "-"}`
+                );
                 results.set(ip, { ip, name: service.name, source: ["mdns"], mdns: svc });
             }
         });
@@ -1006,6 +1042,7 @@ async function discoverMdns(timeoutMs) {
 }
 
 async function probeDevice(ip, seed) {
+    adapter.log.debug(`Probing device ${ip}`);
     const result = {
         ip,
         source: seed.source || [],
@@ -1026,6 +1063,7 @@ async function probeDevice(ip, seed) {
         result.protocol = "wss";
         result.port = 8002;
         applyTizenInfo(result, tizenSecure);
+        adapter.log.debug(`Probe result ${ip}: api=tizen protocol=wss port=8002`);
     }
 
     // try tizen http if not found
@@ -1036,6 +1074,7 @@ async function probeDevice(ip, seed) {
             result.protocol = "ws";
             result.port = 8001;
             applyTizenInfo(result, tizen);
+            adapter.log.debug(`Probe result ${ip}: api=tizen protocol=ws port=8001`);
         }
     }
 
@@ -1048,6 +1087,7 @@ async function probeDevice(ip, seed) {
             result.protocol = "ws";
             result.id = normalizeId(hj.DeviceID || "");
             result.name = result.name || hj.DeviceName || "";
+            adapter.log.debug(`Probe result ${ip}: api=hj protocol=ws port=8000`);
         }
     }
 
@@ -1058,6 +1098,7 @@ async function probeDevice(ip, seed) {
             if (!result.model) result.model = desc.modelName || "";
             if (!result.name) result.name = desc.friendlyName || "";
             if (!result.uuid && desc.UDN) result.uuid = desc.UDN;
+            adapter.log.debug(`UPnP description for ${ip}: model=${result.model || "-"} name=${result.name || "-"}`);
         }
     }
 
@@ -1075,7 +1116,15 @@ async function probeDevice(ip, seed) {
         result.id = mac;
     }
 
-    return result.id ? result : null;
+    if (result.id) {
+        adapter.log.debug(
+            `Probe result ${ip}: id=${result.id || "-"} mac=${result.mac || "-"} model=${result.model || "-"} api=${result.api}`
+        );
+        return result;
+    }
+
+    adapter.log.debug(`Probe failed for ${ip}`);
+    return null;
 }
 
 function applyTizenInfo(result, info) {
@@ -1199,7 +1248,7 @@ async function refreshIpFromMac(device) {
     if (ip && ip !== device.ip) {
         device.ip = ip;
         await updateDeviceInfoStates(device);
-        adapter.log.info(`IP updated for ${device.name} via MAC ${mac}: ${ip}`);
+        adapter.log.debug(`IP updated for ${device.name} via MAC ${mac}: ${ip}`);
         return true;
     }
     return false;
