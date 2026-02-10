@@ -462,14 +462,8 @@ async function renamePrefix(oldPrefix, newPrefix) {
         }
     }
 
-    // Delete old objects
-    for (const oldId of allIds.sort((a, b) => b.length - a.length)) {
-        try {
-            await adapter.delForeignObjectAsync(oldId, { recursive: false });
-        } catch (e) {
-            // ignore
-        }
-    }
+    // Delete old objects (recursive cleanup to avoid empty folders)
+    await deletePrefix(oldPrefix);
 }
 
 async function ensureDeviceObjects(device) {
