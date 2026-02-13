@@ -80,7 +80,11 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - When installing via URL, an instance is created automatically (skip with `IOBROKER_SKIP_POSTINSTALL=1`).
 
 ## Changelog
-See `io-package.json` (`common.news`) or the GitHub releases for detailed changes.
+### 0.0.25
+- Maintenance release (repo cleanup, workflow, npm publish)
+
+### 0.0.24
+- Stability and UI fixes (pairing, power control, cleanup)
 
 ## How to test (short)
 1. Install the adapter and create an instance.
@@ -93,3 +97,5 @@ See `io-package.json` (`common.news`) or the GitHub releases for detailed change
 
 ## License
 MIT
+
+Copyright (c) 2026 softwarecrash

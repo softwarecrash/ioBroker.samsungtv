@@ -28,32 +28,6 @@
         "pl": "Stability and UI fixes (pairing, power control, cleanup)",
         "uk": "Stability and UI fixes (pairing, power control, cleanup)",
         "zh-cn": "Stability and UI fixes (pairing, power control, cleanup)"
-      },
-      "0.0.13": {
-        "en": "Improve pairing fallback for H/J models and token-less Tizen",
-        "de": "Pairing-Fallback für H/J-Modelle und tokenloses Tizen verbessert",
-        "ru": "Improve pairing fallback for H/J models and token-less Tizen",
-        "pt": "Improve pairing fallback for H/J models and token-less Tizen",
-        "nl": "Improve pairing fallback for H/J models and token-less Tizen",
-        "fr": "Improve pairing fallback for H/J models and token-less Tizen",
-        "it": "Improve pairing fallback for H/J models and token-less Tizen",
-        "es": "Improve pairing fallback for H/J models and token-less Tizen",
-        "pl": "Improve pairing fallback for H/J models and token-less Tizen",
-        "uk": "Improve pairing fallback for H/J models and token-less Tizen",
-        "zh-cn": "Improve pairing fallback for H/J models and token-less Tizen"
-      },
-      "0.0.12": {
-        "en": "Hide already added devices from discovery list",
-        "de": "Bereits hinzugefügte Geräte in der Discovery-Liste ausblenden",
-        "ru": "Hide already added devices from discovery list",
-        "pt": "Hide already added devices from discovery list",
-        "nl": "Hide already added devices from discovery list",
-        "fr": "Hide already added devices from discovery list",
-        "it": "Hide already added devices from discovery list",
-        "es": "Hide already added devices from discovery list",
-        "pl": "Hide already added devices from discovery list",
-        "uk": "Hide already added devices from discovery list",
-        "zh-cn": "Hide already added devices from discovery list"
       }
     },
     "titleLang": {
