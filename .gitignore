@@ -9,7 +9,9 @@ pnpm-debug.log*
 *.swp
 .DS_Store
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
+.commitinfo
 .env
 .env.*
 coverage/

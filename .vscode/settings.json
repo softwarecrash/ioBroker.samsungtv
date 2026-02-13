@@ -1,0 +1,16 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "io-package.json"
+      ],
+      "url": "https://json.schemastore.org/io-package"
+    },
+    {
+      "fileMatch": [
+        "package.json"
+      ],
+      "url": "https://json.schemastore.org/package"
+    }
+  ]
+}

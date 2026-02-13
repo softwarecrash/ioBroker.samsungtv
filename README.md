@@ -2,7 +2,7 @@
 
 # ioBroker.samsungtv
 
-Modern Samsung TV adapter with automatic discovery and multi-device management in a single instance.
+Modern Samsung TV adapter with automatic discovery and multi-device management in one instance (multiple TVs supported in the same instance).
 
 German documentation is available at `doc/de/README.md`.
 
@@ -78,6 +78,9 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - If legacy objects exist, warnings are logged.
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 - When installing via URL, an instance is created automatically (skip with `IOBROKER_SKIP_POSTINSTALL=1`).
+
+## Changelog
+See `io-package.json` (`common.news`) or the GitHub releases for detailed changes.
 
 ## How to test (short)
 1. Install the adapter and create an instance.

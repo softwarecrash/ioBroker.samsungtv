@@ -1,0 +1,9 @@
+{
+  "extends": "@iobroker/tsconfig",
+  "compilerOptions": {
+    "types": ["node", "mocha"]
+  },
+  "include": [
+    "./**/*.ts"
+  ]
+}

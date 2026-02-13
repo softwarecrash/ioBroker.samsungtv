@@ -77,6 +77,9 @@ Hinweis: Nicht jeder TV unterstützt jeden Key. Manche Keys wirken nur, wenn ein
 - Adapter wurde auf `samsungtv` umbenannt, um Konflikte mit dem alten `samsung`-Adapter zu vermeiden.
 - Bei Installation über URL wird eine Instanz automatisch angelegt. (Überspringen mit `IOBROKER_SKIP_POSTINSTALL=1`)
 
+## Changelog
+Siehe `io-package.json` (`common.news`) oder die GitHub-Releases für Details.
+
 ## How to test (Kurz)
 1. Adapter installieren und Instanz anlegen.
 2. Admin öffnen, **Scan** starten.

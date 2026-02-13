@@ -4,7 +4,7 @@
   "description": "Modern Samsung TV adapter with discovery and multi-device support",
   "author": "softwarecrash",
   "contributors": [],
-  "homepage": "https://github.com/softwarecrash/iobroker.samsungtv",
+  "homepage": "https://github.com/softwarecrash/ioBroker.samsungtv",
   "license": "MIT",
   "keywords": [
     "ioBroker",
@@ -18,12 +18,23 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/softwarecrash/iobroker.samsungtv.git"
+    "url": "https://github.com/softwarecrash/ioBroker.samsungtv.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "main": "main.js",
+  "files": [
+    "admin/",
+    "doc/",
+    "lib/",
+    "scripts/",
+    "main.js",
+    "io-package.json",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@iobroker/adapter-core": "^3.3.2",
     "bonjour-service": "^1.2.1",
@@ -37,15 +48,11 @@
     "@iobroker/adapter-dev": "^1.5.0",
     "@iobroker/testing": "^5.2.2",
     "@types/node": "^24.10.1",
-    "chai": "^4.5.0",
-    "chai-as-promised": "^7.1.2",
+    "mocha": "^10.4.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.5.4",
-    "mocha": "^10.4.0",
     "prettier": "^3.7.4",
-    "sinon": "^19.0.2",
-    "sinon-chai": "^3.7.0",
     "typescript": "~5.9.3"
   },
   "scripts": {

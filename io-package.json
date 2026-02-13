@@ -3,71 +3,76 @@
     "name": "samsungtv",
     "version": "0.0.24",
     "news": {
+      "0.0.24": {
+        "en": "Stability and UI fixes (pairing, power control, cleanup)",
+        "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
+        "ru": "Stability and UI fixes (pairing, power control, cleanup)",
+        "pt": "Stability and UI fixes (pairing, power control, cleanup)",
+        "nl": "Stability and UI fixes (pairing, power control, cleanup)",
+        "fr": "Stability and UI fixes (pairing, power control, cleanup)",
+        "it": "Stability and UI fixes (pairing, power control, cleanup)",
+        "es": "Stability and UI fixes (pairing, power control, cleanup)",
+        "pl": "Stability and UI fixes (pairing, power control, cleanup)",
+        "uk": "Stability and UI fixes (pairing, power control, cleanup)",
+        "zh-cn": "Stability and UI fixes (pairing, power control, cleanup)"
+      },
       "0.0.13": {
         "en": "Improve pairing fallback for H/J models and token-less Tizen",
-        "de": "Pairing-Fallback f\u00fcr H/J-Modelle und tokenloses Tizen verbessert"
+        "de": "Pairing-Fallback für H/J-Modelle und tokenloses Tizen verbessert",
+        "ru": "Improve pairing fallback for H/J models and token-less Tizen",
+        "pt": "Improve pairing fallback for H/J models and token-less Tizen",
+        "nl": "Improve pairing fallback for H/J models and token-less Tizen",
+        "fr": "Improve pairing fallback for H/J models and token-less Tizen",
+        "it": "Improve pairing fallback for H/J models and token-less Tizen",
+        "es": "Improve pairing fallback for H/J models and token-less Tizen",
+        "pl": "Improve pairing fallback for H/J models and token-less Tizen",
+        "uk": "Improve pairing fallback for H/J models and token-less Tizen",
+        "zh-cn": "Improve pairing fallback for H/J models and token-less Tizen"
       },
       "0.0.12": {
         "en": "Hide already added devices from discovery list",
-        "de": "Bereits hinzugefügte Geräte in der Discovery-Liste ausblenden"
-      },
-      "0.0.11": {
-        "en": "Accept friendly key names in control.key",
-        "de": "Lesbare Tastennamen in control.key akzeptieren"
-      },
-      "0.0.10": {
-        "en": "Update power state immediately on user action",
-        "de": "Power-Status sofort bei Benutzeraktion aktualisieren"
-      },
-      "0.0.9": {
-        "en": "Mirror power status into control state",
-        "de": "Power-Status in Control-Status spiegeln"
-      },
-      "0.0.8": {
-        "en": "Improve power state detection for Tizen and power-on behavior",
-        "de": "Power-State-Erkennung (Tizen) und Einschaltverhalten verbessert"
-      },
-      "0.0.7": {
-        "en": "Add manual device entry in admin UI",
-        "de": "Manuelle Ger\u00e4teanlage im Admin-UI hinzugef\u00fcgt"
-      },
-      "0.0.6": {
-        "en": "Add detailed debug logging for discovery, probing and pairing",
-        "de": "Detailliertes Debug-Logging f\u00fcr Discovery, Probe und Pairing hinzugef\u00fcgt"
-      },
-      "0.0.5": {
-        "en": "Fix admin UI scrolling so footer buttons are visible",
-        "de": "Admin-UI-Scrollbereich korrigiert, sodass die Footer-Buttons sichtbar sind"
-      },
-      "0.0.4": {
-        "en": "Improve auto instance creation on install (robust iobroker CLI detection)",
-        "de": "Automatische Instanz-Erstellung beim Installieren verbessert (robuste iobroker-CLI-Erkennung)"
-      },
-      "0.0.3": {
-        "en": "Remove deprecated dependency and auto-create instance on install",
-        "de": "Veraltete Abhängigkeit entfernt und Instanz automatisch beim Installieren angelegt"
-      },
-      "0.0.2": {
-        "en": "Rename adapter to Samsung TV and update admin UI/logo",
-        "de": "Adapter in Samsung TV umbenannt und Admin-UI/Logo aktualisiert"
-      },
-      "0.0.1": {
-        "en": "Initial modernized multi-device version with discovery",
-        "de": "Initiale modernisierte Multi-Device-Version mit Discovery"
+        "de": "Bereits hinzugefügte Geräte in der Discovery-Liste ausblenden",
+        "ru": "Hide already added devices from discovery list",
+        "pt": "Hide already added devices from discovery list",
+        "nl": "Hide already added devices from discovery list",
+        "fr": "Hide already added devices from discovery list",
+        "it": "Hide already added devices from discovery list",
+        "es": "Hide already added devices from discovery list",
+        "pl": "Hide already added devices from discovery list",
+        "uk": "Hide already added devices from discovery list",
+        "zh-cn": "Hide already added devices from discovery list"
       }
     },
     "titleLang": {
       "en": "Samsung TV",
-      "de": "Samsung TV"
+      "de": "Samsung TV",
+      "ru": "Samsung TV",
+      "pt": "Samsung TV",
+      "nl": "Samsung TV",
+      "fr": "Samsung TV",
+      "it": "Samsung TV",
+      "es": "Samsung TV",
+      "pl": "Samsung TV",
+      "uk": "Samsung TV",
+      "zh-cn": "Samsung TV"
     },
     "desc": {
       "en": "Modern Samsung TV adapter with discovery and multi-device support",
-      "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support"
+      "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
+      "ru": "Modern Samsung TV adapter with discovery and multi-device support",
+      "pt": "Modern Samsung TV adapter with discovery and multi-device support",
+      "nl": "Modern Samsung TV adapter with discovery and multi-device support",
+      "fr": "Modern Samsung TV adapter with discovery and multi-device support",
+      "it": "Modern Samsung TV adapter with discovery and multi-device support",
+      "es": "Modern Samsung TV adapter with discovery and multi-device support",
+      "pl": "Modern Samsung TV adapter with discovery and multi-device support",
+      "uk": "Modern Samsung TV adapter with discovery and multi-device support",
+      "zh-cn": "Modern Samsung TV adapter with discovery and multi-device support"
     },
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "icon": "samsung.svg",
-    "extIcon": "",
+    "extIcon": "https://raw.githubusercontent.com/softwarecrash/ioBroker.samsungtv/main/admin/samsung.svg",
     "readme": "README.md",
     "licenseInformation": {
       "license": "MIT",
@@ -85,7 +90,7 @@
     "enabled": false,
     "nondeletable": false,
     "type": "multimedia",
-    "singleton": true,
+    "singleton": false,
     "authors": [
       "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
     ],
@@ -106,10 +111,11 @@
         "admin": ">=7.6.17"
       }
     ],
-    "encryptedNative": [
-      "tokens"
-    ]
+    "compact": false
   },
+  "encryptedNative": [
+    "tokens"
+  ],
   "native": {
     "devices": [],
     "tokens": "",
