@@ -691,11 +691,6 @@ function scheduleDevicePoll(device, delayMs) {
     setTimeout(() => pollDevice(device), delay);
 }
 
-async function checkDeviceOnline(device) {
-    const status = await checkDeviceStatus(device);
-    return status.online;
-}
-
 function extractPowerState(info) {
     if (!info || typeof info !== 'object') {
         return '';

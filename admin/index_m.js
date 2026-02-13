@@ -1,5 +1,3 @@
-/* global $, sendTo, systemDictionary, translateAll, _ */
-
 'use strict';
 
 let onChangeCb;
