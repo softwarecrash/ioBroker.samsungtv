@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "samsungtv",
-    "version": "0.0.24",
+    "version": "0.0.25",
     "news": {
+      "0.0.25": {
+        "en": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
+        "ru": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "pt": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "nl": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "fr": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "it": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "es": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "pl": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "uk": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "zh-cn": "Maintenance release (repo cleanup, workflow, npm publish)"
+      },
       "0.0.24": {
         "en": "Stability and UI fixes (pairing, power control, cleanup)",
         "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
