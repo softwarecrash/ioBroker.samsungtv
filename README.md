@@ -79,6 +79,9 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- Update the compatible ioBroker React admin stack and release tooling.
+
 ### 0.0.26
 - Replace the legacy configuration page with a responsive React admin UI.
 - Add complete ioBroker admin translations and automatic light/dark theme support.
@@ -86,11 +89,7 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Store Tizen tokens and H/J pairing identities reliably through ioBroker `encryptedNative` handling.
 - Migrate pairing data written by older adapter versions without exposing secrets.
 
-### 0.0.25
-- Maintenance release (repo cleanup, workflow, npm publish)
-
-### 0.0.24
-- Stability and UI fixes (pairing, power control, cleanup)
+Older changes are documented in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
 ## How to test (short)
 1. Install the adapter and create an instance.
