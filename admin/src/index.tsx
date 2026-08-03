@@ -221,67 +221,101 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(180px, 1fr))' },
-                        gap: 1.5,
+                        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(280px, 1fr))' },
+                        gap: 2,
                     }}
                 >
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={Boolean(native.autoScan)}
-                                onChange={event => this.updateSetting('autoScan', event.target.checked)}
+                    <Box sx={{ p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
+                        <Typography
+                            variant="subtitle1"
+                            fontWeight={600}
+                            sx={{ mb: 1.5 }}
+                        >
+                            {I18n.t('Scan schedule')}
+                        </Typography>
+                        <Stack spacing={1.5}>
+                            <FormControlLabel
+                                sx={{ m: 0, minHeight: 40 }}
+                                control={
+                                    <Checkbox
+                                        checked={Boolean(native.autoScan)}
+                                        onChange={event => this.updateSetting('autoScan', event.target.checked)}
+                                    />
+                                }
+                                label={I18n.t('Auto scan')}
                             />
-                        }
-                        label={I18n.t('Auto scan')}
-                    />
-                    <TextField
-                        size="small"
-                        type="number"
-                        label={I18n.t('Auto scan interval')}
-                        value={native.autoScanInterval ?? 300}
-                        onChange={event => this.updateSetting('autoScanInterval', Number(event.target.value))}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={Boolean(native.enableSsdp)}
-                                onChange={event => this.updateSetting('enableSsdp', event.target.checked)}
+                            <TextField
+                                fullWidth
+                                size="small"
+                                type="number"
+                                disabled={!native.autoScan}
+                                label={I18n.t('Auto scan interval')}
+                                value={native.autoScanInterval ?? 300}
+                                slotProps={{ htmlInput: { min: 30, step: 30 } }}
+                                onChange={event => this.updateSetting('autoScanInterval', Number(event.target.value))}
                             />
-                        }
-                        label={I18n.t('Enable SSDP')}
-                    />
-                    <TextField
-                        size="small"
-                        type="number"
-                        label={I18n.t('Discovery timeout')}
-                        value={native.discoveryTimeout ?? 5}
-                        onChange={event => this.updateSetting('discoveryTimeout', Number(event.target.value))}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={Boolean(native.enableMdns)}
-                                onChange={event => this.updateSetting('enableMdns', event.target.checked)}
+                            <TextField
+                                fullWidth
+                                size="small"
+                                type="number"
+                                label={I18n.t('Poll interval')}
+                                value={native.pollInterval ?? 30}
+                                slotProps={{ htmlInput: { min: 10, step: 5 } }}
+                                onChange={event => this.updateSetting('pollInterval', Number(event.target.value))}
                             />
-                        }
-                        label={I18n.t('Enable mDNS')}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={Boolean(native.enableWol)}
-                                onChange={event => this.updateSetting('enableWol', event.target.checked)}
+                        </Stack>
+                    </Box>
+                    <Box sx={{ p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
+                        <Typography
+                            variant="subtitle1"
+                            fontWeight={600}
+                            sx={{ mb: 1.5 }}
+                        >
+                            {I18n.t('Discovery methods')}
+                        </Typography>
+                        <Stack spacing={0.5}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                type="number"
+                                label={I18n.t('Discovery timeout')}
+                                value={native.discoveryTimeout ?? 5}
+                                slotProps={{ htmlInput: { min: 2, step: 1 } }}
+                                onChange={event => this.updateSetting('discoveryTimeout', Number(event.target.value))}
+                                sx={{ mb: 1 }}
                             />
-                        }
-                        label={I18n.t('Enable Wake-on-LAN')}
-                    />
-                    <TextField
-                        size="small"
-                        type="number"
-                        label={I18n.t('Poll interval')}
-                        value={native.pollInterval ?? 30}
-                        onChange={event => this.updateSetting('pollInterval', Number(event.target.value))}
-                    />
+                            <FormControlLabel
+                                sx={{ m: 0, minHeight: 40 }}
+                                control={
+                                    <Checkbox
+                                        checked={Boolean(native.enableSsdp)}
+                                        onChange={event => this.updateSetting('enableSsdp', event.target.checked)}
+                                    />
+                                }
+                                label={I18n.t('Enable SSDP')}
+                            />
+                            <FormControlLabel
+                                sx={{ m: 0, minHeight: 40 }}
+                                control={
+                                    <Checkbox
+                                        checked={Boolean(native.enableMdns)}
+                                        onChange={event => this.updateSetting('enableMdns', event.target.checked)}
+                                    />
+                                }
+                                label={I18n.t('Enable mDNS')}
+                            />
+                            <FormControlLabel
+                                sx={{ m: 0, minHeight: 40 }}
+                                control={
+                                    <Checkbox
+                                        checked={Boolean(native.enableWol)}
+                                        onChange={event => this.updateSetting('enableWol', event.target.checked)}
+                                    />
+                                }
+                                label={I18n.t('Enable Wake-on-LAN')}
+                            />
+                        </Stack>
+                    </Box>
                 </Box>
             </Paper>
         );
