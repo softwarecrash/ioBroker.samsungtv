@@ -5,7 +5,6 @@ const { Client: SsdpClient } = require('node-ssdp');
 const { Bonjour } = require('bonjour-service');
 const WebSocket = require('ws');
 const wol = require('wake_on_lan');
-const fetch = require('node-fetch');
 const https = require('https');
 const http = require('http');
 const net = require('net');
