@@ -27,6 +27,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import LinkIcon from '@mui/icons-material/Link';
@@ -480,114 +481,130 @@ class App extends GenericApp<GenericAppProps, AppState> {
 
     public override render(): React.JSX.Element {
         if (!this.state.loaded) {
-            return <CircularProgress sx={{ m: 3 }} />;
+            return (
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={this.state.theme}>
+                        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
+                            <CircularProgress sx={{ m: 3 }} />
+                        </Box>
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            );
         }
         return (
-            <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary', pb: 8 }}>
-                <Box sx={{ p: { xs: 1.5, md: 2.5 }, maxWidth: 1500, mx: 'auto' }}>
-                    <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="center"
-                        sx={{ mb: 2 }}
-                    >
-                        <Box
-                            component="img"
-                            src="samsung.svg"
-                            alt="Samsung"
-                            sx={{ width: 84, maxHeight: 38 }}
-                        />
-                        <Typography variant="h5">{I18n.t('Samsung TV')}</Typography>
-                    </Stack>
-                    <Stack spacing={2}>
-                        {this.renderSettings()}
-                        <Box>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary', pb: 8 }}>
+                        <Box sx={{ p: { xs: 1.5, md: 2.5 }, maxWidth: 1500, mx: 'auto' }}>
                             <Stack
                                 direction="row"
+                                spacing={1.5}
                                 alignItems="center"
-                                justifyContent="space-between"
-                                sx={{ mb: 1 }}
+                                sx={{ mb: 2 }}
                             >
+                                <Box
+                                    component="img"
+                                    src="samsung.svg"
+                                    alt="Samsung"
+                                    sx={{ width: 84, maxHeight: 38 }}
+                                />
+                                <Typography variant="h5">{I18n.t('Samsung TV')}</Typography>
+                            </Stack>
+                            <Stack spacing={2}>
+                                {this.renderSettings()}
                                 <Box>
-                                    <Typography variant="h6">{I18n.t('Discovery')}</Typography>
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                        sx={{ mb: 1 }}
                                     >
-                                        {I18n.t('Last scan')}:{' '}
-                                        {this.state.lastScan ? new Date(this.state.lastScan).toLocaleString() : '-'}
-                                    </Typography>
+                                        <Box>
+                                            <Typography variant="h6">{I18n.t('Discovery')}</Typography>
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                            >
+                                                {I18n.t('Last scan')}:{' '}
+                                                {this.state.lastScan
+                                                    ? new Date(this.state.lastScan).toLocaleString()
+                                                    : '-'}
+                                            </Typography>
+                                        </Box>
+                                        <Button
+                                            variant="contained"
+                                            startIcon={
+                                                this.state.busy ? (
+                                                    <CircularProgress
+                                                        size={16}
+                                                        color="inherit"
+                                                    />
+                                                ) : (
+                                                    <SearchIcon />
+                                                )
+                                            }
+                                            disabled={this.state.busy}
+                                            onClick={() => void this.scan()}
+                                        >
+                                            {I18n.t(this.state.busy ? 'Scanning' : 'Scan')}
+                                        </Button>
+                                    </Stack>
+                                    {this.renderDeviceTable(this.state.discovered, true)}
                                 </Box>
+                                <Box>
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                        sx={{ mb: 1 }}
+                                    >
+                                        <Typography variant="h6">{I18n.t('Added TVs')}</Typography>
+                                        <Button
+                                            startIcon={<AddIcon />}
+                                            onClick={() => this.setState({ manualOpen: true, manual: emptyDevice() })}
+                                        >
+                                            {I18n.t('Manual add')}
+                                        </Button>
+                                    </Stack>
+                                    {this.renderDeviceTable(this.configuredDevices, false)}
+                                </Box>
+                                <Alert severity="info">{I18n.t('Stable identity note')}</Alert>
+                            </Stack>
+                        </Box>
+                        {this.renderManualDialog()}
+                        <Dialog
+                            open={Boolean(this.state.pairDevice)}
+                            onClose={() => this.setState({ pairDevice: null, pin: '' })}
+                        >
+                            <DialogTitle>{I18n.t('Enter PIN')}</DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    autoFocus
+                                    value={this.state.pin}
+                                    onChange={event => this.setState({ pin: event.target.value })}
+                                    sx={{ mt: 1 }}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => this.setState({ pairDevice: null, pin: '' })}>
+                                    {I18n.t('Cancel')}
+                                </Button>
                                 <Button
                                     variant="contained"
-                                    startIcon={
-                                        this.state.busy ? (
-                                            <CircularProgress
-                                                size={16}
-                                                color="inherit"
-                                            />
-                                        ) : (
-                                            <SearchIcon />
-                                        )
+                                    disabled={!this.state.pin}
+                                    onClick={() =>
+                                        this.state.pairDevice && void this.pair(this.state.pairDevice, this.state.pin)
                                     }
-                                    disabled={this.state.busy}
-                                    onClick={() => void this.scan()}
                                 >
-                                    {I18n.t(this.state.busy ? 'Scanning' : 'Scan')}
+                                    {I18n.t('Pair')}
                                 </Button>
-                            </Stack>
-                            {this.renderDeviceTable(this.state.discovered, true)}
-                        </Box>
-                        <Box>
-                            <Stack
-                                direction="row"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                sx={{ mb: 1 }}
-                            >
-                                <Typography variant="h6">{I18n.t('Added TVs')}</Typography>
-                                <Button
-                                    startIcon={<AddIcon />}
-                                    onClick={() => this.setState({ manualOpen: true, manual: emptyDevice() })}
-                                >
-                                    {I18n.t('Manual add')}
-                                </Button>
-                            </Stack>
-                            {this.renderDeviceTable(this.configuredDevices, false)}
-                        </Box>
-                        <Alert severity="info">{I18n.t('Stable identity note')}</Alert>
-                    </Stack>
-                </Box>
-                {this.renderManualDialog()}
-                <Dialog
-                    open={Boolean(this.state.pairDevice)}
-                    onClose={() => this.setState({ pairDevice: null, pin: '' })}
-                >
-                    <DialogTitle>{I18n.t('Enter PIN')}</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            autoFocus
-                            value={this.state.pin}
-                            onChange={event => this.setState({ pin: event.target.value })}
-                            sx={{ mt: 1 }}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => this.setState({ pairDevice: null, pin: '' })}>{I18n.t('Cancel')}</Button>
-                        <Button
-                            variant="contained"
-                            disabled={!this.state.pin}
-                            onClick={() =>
-                                this.state.pairDevice && void this.pair(this.state.pairDevice, this.state.pin)
-                            }
-                        >
-                            {I18n.t('Pair')}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-                {this.renderSaveCloseButtons()}
-                {this.renderHelperDialogs()}
-            </Box>
+                            </DialogActions>
+                        </Dialog>
+                        {this.renderSaveCloseButtons()}
+                        {this.renderHelperDialogs()}
+                    </Box>
+                </ThemeProvider>
+            </StyledEngineProvider>
         );
     }
 }
