@@ -1,0 +1,11 @@
+{
+    "reactRootDir": "admin",
+    "reactOutDir": "build",
+    "reactPattern": "src/index.tsx",
+    "reactTsConfig": "tsconfig.json",
+    "reactFormat": "iife",
+    "reactCompileTarget": "es2020",
+    "reactRaw": {
+        "sourcemap": false
+    }
+}

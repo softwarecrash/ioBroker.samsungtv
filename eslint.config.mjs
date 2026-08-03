@@ -13,7 +13,7 @@ const browserGlobals = {
 export default [
     ...config,
     {
-        ignores: ['build/**', 'lib/hj/Pairing/Encryption/**'],
+        ignores: ['admin/build/**', 'build/**', 'lib/hj/Pairing/Encryption/**'],
     },
     {
         rules: {

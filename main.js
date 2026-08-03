@@ -1826,8 +1826,46 @@ async function onMessage(obj) {
     }
 
     if (obj.command === 'getDiscovered') {
-        const devices = Array.from(discoveredByIp.values());
+        const devices = Array.from(discoveredByIp.values()).map(device => ({
+            ...device,
+            paired: isDevicePaired(device),
+        }));
         adapter.sendTo(obj.from, obj.command, { ok: true, devices, lastScan: lastDiscovery }, obj.callback);
+        return;
+    }
+
+    if (obj.command === 'getAdminState') {
+        const configured = getConfiguredDevices().map(device => ({
+            ...device,
+            paired: isDevicePaired(device),
+        }));
+        const discovered = Array.from(discoveredByIp.values()).map(device => ({
+            ...device,
+            paired: isDevicePaired(device),
+        }));
+        adapter.sendTo(
+            obj.from,
+            obj.command,
+            { ok: true, devices: configured, discovered, lastScan: lastDiscovery },
+            obj.callback,
+        );
+        return;
+    }
+
+    if (obj.command === 'forgetDeviceSecret') {
+        const deviceId = normalizeDeviceId(obj.message && obj.message.id);
+        if (!deviceId) {
+            adapter.sendTo(obj.from, obj.command, { ok: false, error: 'Missing device ID' }, obj.callback);
+            return;
+        }
+        if (tokens.tizen) {
+            delete tokens.tizen[deviceId];
+        }
+        if (tokens.hj) {
+            delete tokens.hj[deviceId];
+        }
+        persistTokens();
+        adapter.sendTo(obj.from, obj.command, { ok: true }, obj.callback);
         return;
     }
 
@@ -1871,7 +1909,7 @@ async function onMessage(obj) {
                     const identity = await hjConfirmPin(device, pin);
                     setInMemoryHjIdentity(device.id, identity);
                     await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
-                    adapter.sendTo(obj.from, obj.command, { ok: true, identity }, obj.callback);
+                    adapter.sendTo(obj.from, obj.command, { ok: true, paired: true }, obj.callback);
                     return;
                 } catch (e) {
                     adapter.log.warn(`HJ pairing failed for ${device.name}: ${e.message}`);
@@ -1892,7 +1930,7 @@ async function onMessage(obj) {
                 await updateDeviceInfoStates(device);
             }
             await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
-            adapter.sendTo(obj.from, obj.command, { ok: true, token }, obj.callback);
+            adapter.sendTo(obj.from, obj.command, { ok: true, paired: true }, obj.callback);
         } catch (e) {
             adapter.log.debug(`Pairing failed for ${device.name}: ${e.message}`);
             adapter.sendTo(obj.from, obj.command, { ok: false, error: e.message }, obj.callback);
