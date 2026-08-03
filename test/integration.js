@@ -1,5 +1,6 @@
 const path = require('path');
 const { tests } = require('@iobroker/testing');
 
-// Run integration tests - See https://github.com/ioBroker/testing for details
-tests.integration(path.join(__dirname, '..'));
+// Test against a released controller. The testing default uses the development
+// branch on newer Node.js versions, which may not initialize iobroker.json.
+tests.integration(path.join(__dirname, '..'), { controllerVersion: 'latest' });
