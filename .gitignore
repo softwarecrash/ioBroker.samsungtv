@@ -13,6 +13,7 @@ pnpm-debug.log*
 .env
 .env.*
 coverage/
+build/
 .eslintcache
 
 #ignore .commitinfo created by ioBroker release script

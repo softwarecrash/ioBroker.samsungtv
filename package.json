@@ -1,60 +1,68 @@
 {
-  "name": "iobroker.samsungtv",
-  "version": "0.0.25",
-  "description": "Modern Samsung TV adapter with discovery and multi-device support",
-  "author": "softwarecrash",
-  "contributors": [],
-  "homepage": "https://github.com/softwarecrash/ioBroker.samsungtv",
-  "license": "MIT",
-  "keywords": [
-    "ioBroker",
-    "samsung",
-    "samsung tv",
-    "tizen",
-    "upnp",
-    "ssdp",
-    "mdns",
-    "wol"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/softwarecrash/ioBroker.samsungtv.git"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "main": "main.js",
-  "files": [
-    "admin/",
-    "doc/",
-    "lib/",
-    "scripts/",
-    "main.js",
-    "io-package.json",
-    "package.json",
-    "README.md",
-    "LICENSE"
-  ],
-  "dependencies": {
-    "@iobroker/adapter-core": "^3.4.3",
-    "bonjour-service": "^1.4.4",
-    "fast-xml-parser": "^5.10.1",
-    "wake_on_lan": "^1.0.0",
-    "ws": "^8.21.1"
-  },
-  "devDependencies": {
-    "@iobroker/adapter-dev": "^1.5.0",
-    "@iobroker/eslint-config": "^2.3.4",
-    "@iobroker/testing": "^5.3.0",
-    "@types/node": "^24.13.3",
-    "globals": "^17.9.0",
-    "typescript": "~5.9.3"
-  },
-  "scripts": {
-    "test:js": "node scripts/run-mocha.js --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
-    "test:package": "node scripts/run-mocha.js test/package --exit",
-    "test:integration": "node scripts/run-mocha.js test/integration --exit",
-    "test": "npm run test:js && npm run test:package",
-    "lint": "eslint -c eslint.config.mjs ."
-  }
+    "name": "iobroker.samsungtv",
+    "version": "0.0.25",
+    "description": "Modern Samsung TV adapter with discovery and multi-device support",
+    "author": "softwarecrash",
+    "contributors": [],
+    "homepage": "https://github.com/softwarecrash/ioBroker.samsungtv",
+    "license": "MIT",
+    "keywords": [
+        "ioBroker",
+        "samsung",
+        "samsung tv",
+        "tizen",
+        "upnp",
+        "ssdp",
+        "mdns",
+        "wol"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/softwarecrash/ioBroker.samsungtv.git"
+    },
+    "engines": {
+        "node": ">=20"
+    },
+    "main": "main.js",
+    "files": [
+        "admin/",
+        "build/",
+        "doc/",
+        "lib/",
+        "scripts/",
+        "main.js",
+        "io-package.json",
+        "package.json",
+        "README.md",
+        "LICENSE"
+    ],
+    "dependencies": {
+        "@iobroker/adapter-core": "^3.4.3",
+        "bonjour-service": "^1.4.4",
+        "fast-xml-parser": "^5.10.1",
+        "wake_on_lan": "^1.0.0",
+        "ws": "^8.21.1"
+    },
+    "devDependencies": {
+        "@iobroker/adapter-dev": "^1.5.0",
+        "@iobroker/eslint-config": "^2.3.4",
+        "@iobroker/testing": "^5.3.0",
+        "@types/node": "^24.13.3",
+        "@types/mocha": "^10.0.10",
+        "globals": "^17.9.0",
+        "typescript": "~5.9.3"
+    },
+    "scripts": {
+        "build": "npm run build:typescript",
+        "build:typescript": "tsc -p tsconfig.build.json",
+        "check": "tsc -p tsconfig.json --noEmit",
+        "clean": "rm -rf build coverage",
+        "pretest": "npm run build:typescript",
+        "test:js": "node scripts/run-mocha.js --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
+        "test:unit": "node scripts/run-mocha.js \"build/**/*.test.js\" --exit",
+        "test:package": "node scripts/run-mocha.js test/package --exit",
+        "test:integration": "node scripts/run-mocha.js test/integration --exit",
+        "test": "npm run test:unit && npm run test:js && npm run test:package",
+        "lint": "eslint -c eslint.config.mjs ."
+    }
 }

@@ -1,122 +1,110 @@
 {
-  "common": {
-    "name": "samsungtv",
-    "version": "0.0.25",
-    "news": {
-      "0.0.25": {
-        "en": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
-        "ru": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "pt": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "nl": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "fr": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "it": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "es": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "pl": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "uk": "Maintenance release (repo cleanup, workflow, npm publish)",
-        "zh-cn": "Maintenance release (repo cleanup, workflow, npm publish)"
-      },
-      "0.0.24": {
-        "en": "Stability and UI fixes (pairing, power control, cleanup)",
-        "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
-        "ru": "Stability and UI fixes (pairing, power control, cleanup)",
-        "pt": "Stability and UI fixes (pairing, power control, cleanup)",
-        "nl": "Stability and UI fixes (pairing, power control, cleanup)",
-        "fr": "Stability and UI fixes (pairing, power control, cleanup)",
-        "it": "Stability and UI fixes (pairing, power control, cleanup)",
-        "es": "Stability and UI fixes (pairing, power control, cleanup)",
-        "pl": "Stability and UI fixes (pairing, power control, cleanup)",
-        "uk": "Stability and UI fixes (pairing, power control, cleanup)",
-        "zh-cn": "Stability and UI fixes (pairing, power control, cleanup)"
-      }
+    "common": {
+        "name": "samsungtv",
+        "version": "0.0.25",
+        "news": {
+            "0.0.25": {
+                "en": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
+                "ru": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "pt": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "nl": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "fr": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "it": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "es": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "pl": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "uk": "Maintenance release (repo cleanup, workflow, npm publish)",
+                "zh-cn": "Maintenance release (repo cleanup, workflow, npm publish)"
+            },
+            "0.0.24": {
+                "en": "Stability and UI fixes (pairing, power control, cleanup)",
+                "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
+                "ru": "Stability and UI fixes (pairing, power control, cleanup)",
+                "pt": "Stability and UI fixes (pairing, power control, cleanup)",
+                "nl": "Stability and UI fixes (pairing, power control, cleanup)",
+                "fr": "Stability and UI fixes (pairing, power control, cleanup)",
+                "it": "Stability and UI fixes (pairing, power control, cleanup)",
+                "es": "Stability and UI fixes (pairing, power control, cleanup)",
+                "pl": "Stability and UI fixes (pairing, power control, cleanup)",
+                "uk": "Stability and UI fixes (pairing, power control, cleanup)",
+                "zh-cn": "Stability and UI fixes (pairing, power control, cleanup)"
+            }
+        },
+        "titleLang": {
+            "en": "Samsung TV",
+            "de": "Samsung TV",
+            "ru": "Samsung TV",
+            "pt": "Samsung TV",
+            "nl": "Samsung TV",
+            "fr": "Samsung TV",
+            "it": "Samsung TV",
+            "es": "Samsung TV",
+            "pl": "Samsung TV",
+            "uk": "Samsung TV",
+            "zh-cn": "Samsung TV"
+        },
+        "desc": {
+            "en": "Modern Samsung TV adapter with discovery and multi-device support",
+            "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
+            "ru": "Modern Samsung TV adapter with discovery and multi-device support",
+            "pt": "Modern Samsung TV adapter with discovery and multi-device support",
+            "nl": "Modern Samsung TV adapter with discovery and multi-device support",
+            "fr": "Modern Samsung TV adapter with discovery and multi-device support",
+            "it": "Modern Samsung TV adapter with discovery and multi-device support",
+            "es": "Modern Samsung TV adapter with discovery and multi-device support",
+            "pl": "Modern Samsung TV adapter with discovery and multi-device support",
+            "uk": "Modern Samsung TV adapter with discovery and multi-device support",
+            "zh-cn": "Modern Samsung TV adapter with discovery and multi-device support"
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "samsung.png",
+        "extIcon": "https://raw.githubusercontent.com/softwarecrash/ioBroker.samsungtv/main/admin/samsung.png",
+        "readme": "README.md",
+        "licenseInformation": {
+            "license": "MIT",
+            "type": "free"
+        },
+        "loglevel": "info",
+        "keywords": ["samsung", "samsung tv", "tizen", "ssdp", "mdns", "upnp"],
+        "enabled": false,
+        "nondeletable": false,
+        "type": "multimedia",
+        "singleton": false,
+        "authors": ["iobroker-community-adapters <iobroker-community-adapters@gmx.de>"],
+        "connectionType": "local",
+        "dataSource": "poll",
+        "tier": 2,
+        "adminUI": {
+            "config": "html"
+        },
+        "messagebox": true,
+        "dependencies": [
+            {
+                "js-controller": ">=6.0.11"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.6.17"
+            }
+        ],
+        "compact": false
     },
-    "titleLang": {
-      "en": "Samsung TV",
-      "de": "Samsung TV",
-      "ru": "Samsung TV",
-      "pt": "Samsung TV",
-      "nl": "Samsung TV",
-      "fr": "Samsung TV",
-      "it": "Samsung TV",
-      "es": "Samsung TV",
-      "pl": "Samsung TV",
-      "uk": "Samsung TV",
-      "zh-cn": "Samsung TV"
+    "encryptedNative": ["tokens"],
+    "protectedNative": ["tokens"],
+    "native": {
+        "schemaVersion": 1,
+        "devices": [],
+        "tokens": "",
+        "autoScan": true,
+        "autoScanInterval": 300,
+        "discoveryTimeout": 5,
+        "pollInterval": 30,
+        "enableSsdp": true,
+        "enableMdns": true,
+        "enableWol": true,
+        "mdnsServices": "_airplay._tcp,_samsung._tcp,_samsungtv._tcp,_samsungmsf._tcp,_samsungmsf2._tcp,_smartthings._tcp"
     },
-    "desc": {
-      "en": "Modern Samsung TV adapter with discovery and multi-device support",
-      "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
-      "ru": "Modern Samsung TV adapter with discovery and multi-device support",
-      "pt": "Modern Samsung TV adapter with discovery and multi-device support",
-      "nl": "Modern Samsung TV adapter with discovery and multi-device support",
-      "fr": "Modern Samsung TV adapter with discovery and multi-device support",
-      "it": "Modern Samsung TV adapter with discovery and multi-device support",
-      "es": "Modern Samsung TV adapter with discovery and multi-device support",
-      "pl": "Modern Samsung TV adapter with discovery and multi-device support",
-      "uk": "Modern Samsung TV adapter with discovery and multi-device support",
-      "zh-cn": "Modern Samsung TV adapter with discovery and multi-device support"
-    },
-    "platform": "Javascript/Node.js",
-    "mode": "daemon",
-    "icon": "samsung.png",
-    "extIcon": "https://raw.githubusercontent.com/softwarecrash/ioBroker.samsungtv/main/admin/samsung.png",
-    "readme": "README.md",
-    "licenseInformation": {
-      "license": "MIT",
-      "type": "free"
-    },
-    "loglevel": "info",
-    "keywords": [
-      "samsung",
-      "samsung tv",
-      "tizen",
-      "ssdp",
-      "mdns",
-      "upnp"
-    ],
-    "enabled": false,
-    "nondeletable": false,
-    "type": "multimedia",
-    "singleton": false,
-    "authors": [
-      "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
-    ],
-    "connectionType": "local",
-    "dataSource": "poll",
-    "tier": 2,
-    "adminUI": {
-      "config": "html"
-    },
-    "messagebox": true,
-    "dependencies": [
-      {
-        "js-controller": ">=6.0.11"
-      }
-    ],
-    "globalDependencies": [
-      {
-        "admin": ">=7.6.17"
-      }
-    ],
-    "compact": false
-  },
-  "encryptedNative": [
-    "tokens"
-  ],
-  "protectedNative": [
-    "tokens"
-  ],
-  "native": {
-    "devices": [],
-    "tokens": "",
-    "autoScan": true,
-    "autoScanInterval": 300,
-    "discoveryTimeout": 5,
-    "pollInterval": 30,
-    "enableSsdp": true,
-    "enableMdns": true,
-    "enableWol": true,
-    "mdnsServices": "_airplay._tcp,_samsung._tcp,_samsungtv._tcp,_samsungmsf._tcp,_samsungmsf2._tcp,_smartthings._tcp"
-  },
-  "objects": []
+    "objects": []
 }

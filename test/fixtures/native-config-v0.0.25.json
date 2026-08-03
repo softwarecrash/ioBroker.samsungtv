@@ -1,0 +1,37 @@
+{
+    "devices": [
+        {
+            "id": "uuid:11111111-2222-3333-4444-555555555555",
+            "name": "Samsung Living Room",
+            "ip": "192.0.2.10",
+            "mac": "AA-BB-CC-DD-EE-01",
+            "model": "GQ65QN85AA",
+            "api": "tizen",
+            "protocol": "wss",
+            "port": 8002,
+            "uuid": "11111111-2222-3333-4444-555555555555",
+            "source": "ssdp"
+        },
+        {
+            "id": "22222222-3333-4444-5555-666666666666",
+            "name": "TV Bedroom",
+            "ip": "192.0.2.20",
+            "mac": "aa:bb:cc:dd:ee:02",
+            "model": "UE40JU6000",
+            "api": "hj",
+            "protocol": "ws",
+            "port": 8000,
+            "source": "ssdp",
+            "hjAvailable": true
+        }
+    ],
+    "tokens": "{\"tizen\":{},\"hj\":{}}",
+    "autoScan": true,
+    "autoScanInterval": "300",
+    "discoveryTimeout": "5",
+    "pollInterval": "30",
+    "enableSsdp": true,
+    "enableMdns": true,
+    "enableWol": true,
+    "mdnsServices": "_airplay._tcp,_samsung._tcp"
+}
