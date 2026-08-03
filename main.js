@@ -1,7 +1,7 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-const { Client: SsdpClient } = require('node-ssdp');
+const { SsdpClient } = require('./lib/discovery/SsdpClient');
 const { Bonjour } = require('bonjour-service');
 const WebSocket = require('ws');
 const wol = require('wake_on_lan');
