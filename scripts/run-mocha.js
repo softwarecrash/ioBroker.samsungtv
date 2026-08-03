@@ -1,6 +1,6 @@
 'use strict';
 
-const { spawnSync } = require('child_process');
+const { spawnSync } = require('node:child_process');
 
 function resolveMochaBin() {
     const candidates = ['mocha/bin/mocha', '@iobroker/testing/node_modules/mocha/bin/mocha'];

@@ -1,33 +1,46 @@
 {
     "common": {
         "name": "samsungtv",
-        "version": "0.0.25",
+        "version": "0.0.26",
         "news": {
+            "0.0.26": {
+                "en": "Modern React admin UI, complete translations, and reliable encrypted pairing storage",
+                "de": "Moderne React-Admin-UI, vollständige Übersetzungen und zuverlässige verschlüsselte Pairing-Speicherung",
+                "ru": "Современный интерфейс React Admin, полные переводы и надежное зашифрованное хранение данных сопряжения",
+                "pt": "Interface de administração React moderna, traduções completas e armazenamento de emparelhamento encriptado fiável",
+                "nl": "Moderne React-beheerinterface, volledige vertalingen en betrouwbare versleutelde opslag van koppelgegevens",
+                "fr": "Interface d'administration React moderne, traductions complètes et stockage chiffré fiable de l'appairage",
+                "it": "Interfaccia di amministrazione React moderna, traduzioni complete e archiviazione crittografata affidabile dell'associazione",
+                "es": "Interfaz de administración React moderna, traducciones completas y almacenamiento cifrado fiable del emparejamiento",
+                "pl": "Nowoczesny interfejs administracyjny React, kompletne tłumaczenia i niezawodne szyfrowane przechowywanie danych parowania",
+                "uk": "Сучасний інтерфейс React Admin, повні переклади та надійне зашифроване зберігання даних сполучення",
+                "zh-cn": "现代 React 管理界面、完整翻译以及可靠的加密配对数据存储"
+            },
             "0.0.25": {
                 "en": "Maintenance release (repo cleanup, workflow, npm publish)",
                 "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
-                "ru": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "pt": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "nl": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "fr": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "it": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "es": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "pl": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "uk": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "zh-cn": "Maintenance release (repo cleanup, workflow, npm publish)"
+                "ru": "Технический выпуск (очистка репозитория, рабочий процесс и публикация npm)",
+                "pt": "Versão de manutenção (limpeza do repositório, fluxo de trabalho e publicação npm)",
+                "nl": "Onderhoudsrelease (repository-opruiming, workflow en npm-publicatie)",
+                "fr": "Version de maintenance (nettoyage du dépôt, workflow et publication npm)",
+                "it": "Versione di manutenzione (pulizia del repository, workflow e pubblicazione npm)",
+                "es": "Versión de mantenimiento (limpieza del repositorio, flujo de trabajo y publicación en npm)",
+                "pl": "Wydanie konserwacyjne (porządki w repozytorium, workflow i publikacja npm)",
+                "uk": "Технічний випуск (очищення репозиторію, робочий процес і публікація npm)",
+                "zh-cn": "维护版本（仓库清理、工作流和 npm 发布）"
             },
             "0.0.24": {
                 "en": "Stability and UI fixes (pairing, power control, cleanup)",
                 "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
-                "ru": "Stability and UI fixes (pairing, power control, cleanup)",
-                "pt": "Stability and UI fixes (pairing, power control, cleanup)",
-                "nl": "Stability and UI fixes (pairing, power control, cleanup)",
-                "fr": "Stability and UI fixes (pairing, power control, cleanup)",
-                "it": "Stability and UI fixes (pairing, power control, cleanup)",
-                "es": "Stability and UI fixes (pairing, power control, cleanup)",
-                "pl": "Stability and UI fixes (pairing, power control, cleanup)",
-                "uk": "Stability and UI fixes (pairing, power control, cleanup)",
-                "zh-cn": "Stability and UI fixes (pairing, power control, cleanup)"
+                "ru": "Исправления стабильности и интерфейса (сопряжение, управление питанием и очистка)",
+                "pt": "Correções de estabilidade e interface (emparelhamento, controlo de energia e limpeza)",
+                "nl": "Stabiliteits- en interfaceverbeteringen (koppeling, voeding en opruiming)",
+                "fr": "Correctifs de stabilité et d’interface (appairage, alimentation et nettoyage)",
+                "it": "Correzioni di stabilità e interfaccia (associazione, alimentazione e pulizia)",
+                "es": "Correcciones de estabilidad e interfaz (emparejamiento, alimentación y limpieza)",
+                "pl": "Poprawki stabilności i interfejsu (parowanie, zasilanie i porządki)",
+                "uk": "Виправлення стабільності та інтерфейсу (сполучення, живлення й очищення)",
+                "zh-cn": "稳定性和界面修复（配对、电源控制和清理）"
             }
         },
         "titleLang": {
@@ -66,12 +79,21 @@
             "type": "free"
         },
         "loglevel": "info",
-        "keywords": ["samsung", "samsung tv", "tizen", "ssdp", "mdns", "upnp"],
+        "keywords": [
+            "samsung",
+            "samsung tv",
+            "tizen",
+            "ssdp",
+            "mdns",
+            "upnp"
+        ],
         "enabled": false,
         "nondeletable": false,
         "type": "multimedia",
         "singleton": false,
-        "authors": ["iobroker-community-adapters <iobroker-community-adapters@gmx.de>"],
+        "authors": [
+            "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
+        ],
         "connectionType": "local",
         "dataSource": "poll",
         "tier": 2,
@@ -86,13 +108,17 @@
         ],
         "globalDependencies": [
             {
-                "admin": ">=7.6.17"
+                "admin": ">=7.6.20"
             }
         ],
         "compact": false
     },
-    "encryptedNative": ["tokens"],
-    "protectedNative": ["tokens"],
+    "encryptedNative": [
+        "tokens"
+    ],
+    "protectedNative": [
+        "tokens"
+    ],
     "native": {
         "schemaVersion": 1,
         "devices": [],

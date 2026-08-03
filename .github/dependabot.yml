@@ -12,6 +12,8 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/"
+    cooldown:
+      default: 7
     schedule:
       interval: "cron"
       timezone: "Europe/Berlin"

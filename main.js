@@ -5,12 +5,12 @@ const { SsdpClient } = require('./lib/discovery/SsdpClient');
 const { Bonjour } = require('bonjour-service');
 const WebSocket = require('ws');
 const wol = require('wake_on_lan');
-const https = require('https');
-const http = require('http');
-const net = require('net');
-const { execFile } = require('child_process');
-const os = require('os');
-const dgram = require('dgram');
+const https = require('node:https');
+const http = require('node:http');
+const net = require('node:net');
+const { execFile } = require('node:child_process');
+const os = require('node:os');
+const dgram = require('node:dgram');
 const { XMLParser } = require('fast-xml-parser');
 const LegacyRemote = require('./lib/legacy/LegacyRemote');
 const SamsungHJ = require('./lib/hj/SamsungTv');
@@ -60,15 +60,15 @@ function createAdapter() {
 async function onUnload(callback) {
     try {
         if (pollTimer) {
-            clearInterval(pollTimer);
+            adapter.clearInterval(pollTimer);
             pollTimer = null;
         }
         if (scanTimer) {
-            clearInterval(scanTimer);
+            adapter.clearInterval(scanTimer);
             scanTimer = null;
         }
         if (configSaveTimer) {
-            clearTimeout(configSaveTimer);
+            adapter.clearTimeout(configSaveTimer);
             configSaveTimer = null;
         }
         cleanupUpnpSubscriptions();
@@ -130,7 +130,16 @@ function normalizeDeviceId(id) {
     return norm;
 }
 
-function loadTokensFromConfig() {
+function applyParsedTokens(parsed) {
+    if (!parsed || typeof parsed !== 'object') {
+        return false;
+    }
+    tokens.tizen = parsed.tizen || {};
+    tokens.hj = parsed.hj || {};
+    return true;
+}
+
+async function loadTokensFromConfig() {
     tokens = { tizen: {}, hj: {} };
     if (!adapter.config.tokens) {
         return;
@@ -140,13 +149,28 @@ function loadTokensFromConfig() {
     }
     try {
         const parsed = JSON.parse(adapter.config.tokens);
-        if (parsed && typeof parsed === 'object') {
-            tokens.tizen = parsed.tizen || {};
-            tokens.hj = parsed.hj || {};
+        if (applyParsedTokens(parsed)) {
+            return;
         }
     } catch (e) {
-        adapter.log.warn('Could not parse encrypted tokens from config.');
+        // Older versions wrote encryptedNative fields without using updateConfig.
+        // Read the stored value once and let ioBroker encrypt it correctly below.
     }
+
+    try {
+        const instance = await adapter.getForeignObjectAsync(`system.adapter.${adapter.namespace}`);
+        const storedTokens = instance && instance.native && instance.native.tokens;
+        if (typeof storedTokens === 'string' && applyParsedTokens(JSON.parse(storedTokens))) {
+            await adapter.updateConfig({ tokens: storedTokens });
+            adapter.config.tokens = storedTokens;
+            adapter.log.info('Migrated token storage to ioBroker encryptedNative format.');
+            return;
+        }
+    } catch (e) {
+        // Report a generic error below without exposing token contents.
+    }
+
+    adapter.log.warn('Could not parse encrypted tokens from config.');
 }
 
 async function migrateLegacyConfigFromSamsung() {
@@ -271,12 +295,12 @@ function getConfiguredDevices() {
 
 function scheduleConfigSave() {
     if (configSaveTimer) {
-        clearTimeout(configSaveTimer);
+        adapter.clearTimeout(configSaveTimer);
     }
-    configSaveTimer = setTimeout(async () => {
+    configSaveTimer = adapter.setTimeout(async () => {
         configSaveTimer = null;
         try {
-            await adapter.extendForeignObjectAsync(`system.adapter.${adapter.namespace}`, { native: adapter.config });
+            await adapter.updateConfig(adapter.config);
             adapter.log.debug('Persisted updated device config.');
         } catch (e) {
             adapter.log.warn(`Failed to persist device config: ${e.message}`);
@@ -627,7 +651,7 @@ async function removeStateIfExists(id) {
 
 async function main() {
     await migrateLegacyConfigFromSamsung();
-    loadTokensFromConfig();
+    await loadTokensFromConfig();
     await checkLegacyObjects();
 
     const devices = getConfiguredDevices();
@@ -652,12 +676,12 @@ async function main() {
     adapter.subscribeStates('*.control.*');
 
     const pollInterval = Math.max(10, parseInt(adapter.config.pollInterval, 10) || 30) * 1000;
-    pollTimer = setInterval(pollDevices, pollInterval);
+    pollTimer = adapter.setInterval(pollDevices, pollInterval);
     await pollDevices();
 
     if (adapter.config.autoScan) {
         const interval = Math.max(30, parseInt(adapter.config.autoScanInterval, 10) || 300) * 1000;
-        scanTimer = setInterval(() => performDiscovery(true), interval);
+        scanTimer = adapter.setInterval(() => performDiscovery(true), interval);
         await performDiscovery(true);
     }
 }
@@ -819,7 +843,7 @@ function scheduleDevicePoll(device, delayMs) {
         return;
     }
     const delay = Math.max(500, delayMs || 0);
-    setTimeout(() => pollDevice(device), delay);
+    adapter.setTimeout(() => pollDevice(device), delay);
 }
 
 function extractPowerState(info) {
@@ -1359,7 +1383,7 @@ function schedulePowerFallback(device, targetOn, fallbackKey, delayMs) {
         return;
     }
     const delay = Math.max(1000, delayMs || 0);
-    setTimeout(async () => {
+    adapter.setTimeout(async () => {
         try {
             const status = await checkDeviceStatus(device);
             if (targetOn && status.power) {
@@ -1478,7 +1502,7 @@ async function hjSendKey(device, key) {
         const powerKeys = new Set(['KEY_POWER', 'KEY_POWEROFF', 'KEY_POWERON']);
         if (tv.connection && powerKeys.has(key)) {
             tv.connection.sendKey(key, 'Press');
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await new Promise(resolve => adapter.setTimeout(resolve, 150));
             tv.connection.sendKey(key, 'Release');
             adapter.log.debug(`HJ sendKey ${key} (press/release) to ${device.name}`);
         } else {
@@ -1491,7 +1515,7 @@ async function hjSendKey(device, key) {
         const powerKeys = new Set(['KEY_POWER', 'KEY_POWEROFF', 'KEY_POWERON']);
         if (tv.connection && powerKeys.has(key)) {
             tv.connection.sendKey(key, 'Press');
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await new Promise(resolve => adapter.setTimeout(resolve, 150));
             tv.connection.sendKey(key, 'Release');
             adapter.log.debug(`HJ sendKey retry ${key} (press/release) to ${device.name}`);
         } else {
@@ -1605,13 +1629,13 @@ async function tizenWsRequest(url, payload) {
     return new Promise((resolve, reject) => {
         const safeUrl = url.replace(/token=[^&]+/i, 'token=***');
         const ws = new WebSocket(url, buildTizenWsOptions(url));
-        let timeout = setTimeout(() => {
+        let timeout = adapter.setTimeout(() => {
             ws.terminate();
             reject(new Error('WebSocket timeout'));
         }, WS_CONNECT_TIMEOUT);
 
         ws.on('error', err => {
-            clearTimeout(timeout);
+            adapter.clearTimeout(timeout);
             adapter.log.debug(`WS error: ${safeUrl}: ${err.message}`);
             reject(err);
         });
@@ -1625,28 +1649,28 @@ async function tizenWsRequest(url, payload) {
                 return;
             }
             if (isTizenDenyEvent(message.event)) {
-                clearTimeout(timeout);
+                adapter.clearTimeout(timeout);
                 ws.close();
                 return reject(new Error(`Tizen WS denied: ${message.event}`));
             }
             if (message.event === 'ms.error') {
-                clearTimeout(timeout);
+                adapter.clearTimeout(timeout);
                 ws.close();
                 const msg = message?.data?.message || 'Tizen error';
                 return reject(new Error(`Tizen error: ${msg}`));
             }
             if ((message.event === 'ms.channel.connect' || message.event === 'ms.channel.ready') && !sent) {
                 sent = true;
-                setTimeout(() => {
+                adapter.setTimeout(() => {
                     try {
                         ws.send(JSON.stringify(payload));
                     } catch (e) {
-                        clearTimeout(timeout);
+                        adapter.clearTimeout(timeout);
                         ws.close();
                         return reject(e);
                     }
-                    setTimeout(() => {
-                        clearTimeout(timeout);
+                    adapter.setTimeout(() => {
+                        adapter.clearTimeout(timeout);
                         ws.close();
                         resolve();
                     }, WS_SEND_DELAY);
@@ -1727,7 +1751,7 @@ async function pairTizenWithUrl(url) {
     return new Promise((resolve, reject) => {
         const ws = new WebSocket(url, buildTizenWsOptions(url));
         let done = false;
-        let timeout = setTimeout(() => {
+        let timeout = adapter.setTimeout(() => {
             ws.terminate();
             if (done) {
                 return;
@@ -1741,7 +1765,7 @@ async function pairTizenWithUrl(url) {
                 return;
             }
             done = true;
-            clearTimeout(timeout);
+            adapter.clearTimeout(timeout);
             adapter.log.debug(`Pairing WS error: ${err.message}`);
             reject(err);
         });
@@ -1769,7 +1793,7 @@ async function pairTizenWithUrl(url) {
                     return;
                 }
                 done = true;
-                clearTimeout(timeout);
+                adapter.clearTimeout(timeout);
                 ws.close();
                 return reject(new Error(`Tizen WS denied: ${message.event}`));
             }
@@ -1778,7 +1802,7 @@ async function pairTizenWithUrl(url) {
                     return;
                 }
                 done = true;
-                clearTimeout(timeout);
+                adapter.clearTimeout(timeout);
                 const token = message?.data?.token || message?.data?.data?.token || '';
                 ws.close();
                 if (!token) {
@@ -2047,7 +2071,7 @@ async function discoverSsdp(timeoutMs) {
             });
         });
         client.search('ssdp:all');
-        setTimeout(() => {
+        adapter.setTimeout(() => {
             client.stop();
             resolve(results);
         }, timeoutMs);
@@ -2095,7 +2119,7 @@ async function discoverMdns(timeoutMs) {
     }
 
     return new Promise(resolve => {
-        setTimeout(() => {
+        adapter.setTimeout(() => {
             for (const browser of browsers) {
                 try {
                     browser.stop();
@@ -2334,9 +2358,9 @@ async function fetchHjInfo(ip, timeoutMs) {
 async function fetchUpnpDescription(url, timeoutMs) {
     try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        const timer = adapter.setTimeout(() => controller.abort(), timeoutMs);
         const resp = await fetch(url, { signal: controller.signal });
-        clearTimeout(timer);
+        adapter.clearTimeout(timer);
         if (!resp.ok) {
             return null;
         }
@@ -2553,7 +2577,7 @@ async function discoverSsdpLocationForIp(ip, searchTarget, timeoutMs) {
             }
         });
         client.search(searchTarget || 'ssdp:all');
-        setTimeout(() => finish(''), timeoutMs || 1000);
+        adapter.setTimeout(() => finish(''), timeoutMs || 1000);
     });
 }
 
@@ -2573,7 +2597,7 @@ function stopUpnpNotifyServer() {
 function cleanupUpnpSubscriptions() {
     for (const [deviceId, sub] of upnpSubscriptionsByDeviceId.entries()) {
         if (sub && sub.renewTimer) {
-            clearTimeout(sub.renewTimer);
+            adapter.clearTimeout(sub.renewTimer);
         }
         if (sub && sub.sid) {
             upnpSidToDeviceId.delete(sub.sid);
@@ -2734,7 +2758,7 @@ function dropUpnpSubscription(deviceId) {
         return;
     }
     if (sub.renewTimer) {
-        clearTimeout(sub.renewTimer);
+        adapter.clearTimeout(sub.renewTimer);
     }
     upnpSubscriptionsByDeviceId.delete(deviceId);
     if (sub.sid) {
@@ -2788,7 +2812,7 @@ async function ensureUpnpEventSubscription(device) {
     const timeoutSec = sub.timeoutSec || 300;
     const expiresAt = Date.now() + timeoutSec * 1000;
     const renewDelay = Math.max(30000, Math.floor(timeoutSec * 0.8) * 1000);
-    const renewTimer = setTimeout(() => renewUpnpSubscription(device.id), renewDelay);
+    const renewTimer = adapter.setTimeout(() => renewUpnpSubscription(device.id), renewDelay);
 
     upnpSubscriptionsByDeviceId.set(device.id, { sid: sub.sid, eventUrl, expiresAt, renewTimer });
     adapter.log.debug(`UPnP subscribed for ${device.name}: sid=${sub.sid} timeout=${timeoutSec}s`);
@@ -2803,7 +2827,7 @@ async function renewUpnpSubscription(deviceId) {
         const timeoutSec = (await upnpRenew(sub.eventUrl, sub.sid)) || 300;
         sub.expiresAt = Date.now() + timeoutSec * 1000;
         const renewDelay = Math.max(30000, Math.floor(timeoutSec * 0.8) * 1000);
-        sub.renewTimer = setTimeout(() => renewUpnpSubscription(deviceId), renewDelay);
+        sub.renewTimer = adapter.setTimeout(() => renewUpnpSubscription(deviceId), renewDelay);
         upnpSubscriptionsByDeviceId.set(deviceId, sub);
         adapter.log.debug(`UPnP renewed for ${deviceId}: sid=${sub.sid} timeout=${timeoutSec}s`);
     } catch (e) {
@@ -2914,7 +2938,7 @@ async function upnpGetRenderingControlValue(controlUrl, action, tagName) {
 
     try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 1500);
+        const timer = adapter.setTimeout(() => controller.abort(), 1500);
         const response = await fetch(controlUrl, {
             method: 'POST',
             headers: {
@@ -2924,7 +2948,7 @@ async function upnpGetRenderingControlValue(controlUrl, action, tagName) {
             body,
             signal: controller.signal,
         });
-        clearTimeout(timer);
+        adapter.clearTimeout(timer);
         if (!response.ok) {
             return null;
         }
@@ -2942,7 +2966,7 @@ async function upnpGetRenderingControlValue(controlUrl, action, tagName) {
 
 async function fetchWithTimeout(url, timeoutMs, options = {}) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const timer = adapter.setTimeout(() => controller.abort(), timeoutMs);
     try {
         const resp = await fetch(url, { ...options, signal: controller.signal });
         if (!resp.ok) {
@@ -2952,7 +2976,7 @@ async function fetchWithTimeout(url, timeoutMs, options = {}) {
     } catch (e) {
         return null;
     } finally {
-        clearTimeout(timer);
+        adapter.clearTimeout(timer);
     }
 }
 
@@ -2968,7 +2992,7 @@ async function checkPort(ip, port, timeoutMs) {
             socket.destroy();
             resolve(result);
         };
-        socket.setTimeout(timeoutMs);
+        socket.adapter.setTimeout(timeoutMs);
         socket.once('error', () => finish(false));
         socket.once('timeout', () => finish(false));
         socket.connect(port, ip, () => finish(true));
@@ -3000,7 +3024,7 @@ async function getMacForIp(ip) {
         return '';
     }
     try {
-        const { exec } = require('child_process');
+        const { exec } = require('node:child_process');
         return await new Promise(resolve => {
             exec(`ip neigh show ${ip}`, (err, stdout) => {
                 if (!err && stdout) {
@@ -3065,7 +3089,7 @@ async function getArpTable() {
 
     const map = new Map();
     try {
-        const { exec } = require('child_process');
+        const { exec } = require('node:child_process');
         await new Promise(resolve => {
             exec('ip neigh', (err, stdout) => {
                 if (!err && stdout) {
@@ -3086,7 +3110,7 @@ async function getArpTable() {
 
     if (map.size === 0) {
         try {
-            const { exec } = require('child_process');
+            const { exec } = require('node:child_process');
             await new Promise(resolve => {
                 exec('arp -an', (err, stdout) => {
                     if (!err && stdout) {

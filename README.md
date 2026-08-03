@@ -79,6 +79,13 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 
 ## Changelog
+### 0.0.26
+- Replace the legacy configuration page with a responsive React admin UI.
+- Add complete ioBroker admin translations and automatic light/dark theme support.
+- Add typed configuration foundations and migration tests.
+- Store Tizen tokens and H/J pairing identities reliably through ioBroker `encryptedNative` handling.
+- Migrate pairing data written by older adapter versions without exposing secrets.
+
 ### 0.0.25
 - Maintenance release (repo cleanup, workflow, npm publish)
 

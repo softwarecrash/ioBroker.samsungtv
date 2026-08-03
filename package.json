@@ -1,6 +1,6 @@
 {
     "name": "iobroker.samsungtv",
-    "version": "0.0.25",
+    "version": "0.0.26",
     "description": "Modern Samsung TV adapter with discovery and multi-device support",
     "author": "softwarecrash",
     "contributors": [],
@@ -21,7 +21,7 @@
         "url": "https://github.com/softwarecrash/ioBroker.samsungtv.git"
     },
     "engines": {
-        "node": ">=20"
+        "node": ">=22"
     },
     "main": "main.js",
     "files": [
@@ -52,8 +52,8 @@
         "@iobroker/testing": "^5.3.0",
         "@mui/icons-material": "^6.4.10",
         "@mui/material": "^6.4.10",
-        "@types/mocha": "^10.0.10",
-        "@types/node": "^24.13.3",
+        "@tsconfig/node22": "^22.0.5",
+        "@types/node": "^22.20.1",
         "@types/react": "^18.3.28",
         "@types/react-dom": "^18.3.7",
         "globals": "^17.9.0",

@@ -1,9 +1,12 @@
 {
+    "extends": "@tsconfig/node22/tsconfig.json",
     "compilerOptions": {
         "target": "ES2022",
         "module": "CommonJS",
         "moduleResolution": "Node",
-        "lib": ["ES2022"],
+        "lib": [
+            "ES2022"
+        ],
         "rootDir": "src",
         "outDir": "build",
         "strict": true,
@@ -14,8 +17,13 @@
         "noUncheckedIndexedAccess": true,
         "resolveJsonModule": true,
         "skipLibCheck": true,
-        "types": ["node", "mocha"]
+        "types": [
+            "node",
+            "mocha"
+        ]
     },
-    "include": ["src/**/*.ts"],
+    "include": [
+        "src/**/*.ts"
+    ],
     "exclude": []
 }
