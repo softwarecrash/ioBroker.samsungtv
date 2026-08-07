@@ -583,9 +583,9 @@ async function ensureDeviceObjects(device) {
     await ensureState(`${base}.info.id`, 'Stable ID', 'string', 'info.serial', device.id, true);
     await ensureState(`${base}.info.ip`, 'IP', 'string', 'info.ip', device.ip || '', true);
     await ensureState(`${base}.info.mac`, 'MAC', 'string', 'info.mac', device.mac || '', true);
-    await ensureState(`${base}.info.model`, 'Model', 'string', 'info.name', device.model || '', true);
-    await ensureState(`${base}.info.uuid`, 'UUID', 'string', 'info.uuid', device.uuid || '', true);
-    await ensureState(`${base}.info.api`, 'API', 'string', 'info.name', device.api || '', true);
+    await ensureState(`${base}.info.model`, 'Model', 'string', 'info.model', device.model || '', true);
+    await ensureState(`${base}.info.uuid`, 'UUID', 'string', 'text', device.uuid || '', true);
+    await ensureState(`${base}.info.api`, 'API', 'string', 'text', device.api || '', true);
     await ensureState(`${base}.info.lastSeen`, 'Last Seen', 'number', 'value.time', 0, true);
     await ensureState(`${base}.info.paired`, 'Paired', 'boolean', 'indicator', false, true);
     await ensureState(`${base}.info.online`, 'Online', 'boolean', 'indicator.reachable', false, true);
@@ -593,13 +593,13 @@ async function ensureDeviceObjects(device) {
     await removeStateIfExists(`${base}.info.remoteAvailable`);
     await removeStateIfExists(`${base}.info.hjAvailable`);
 
-    await ensureState(`${base}.state.power`, 'Power', 'boolean', 'indicator.power', false, true);
-    await ensureState(`${base}.state.volume`, 'Volume', 'number', 'value.volume', 0, true);
-    await ensureState(`${base}.state.muted`, 'Muted', 'boolean', 'indicator.mute', false, true);
+    await ensureState(`${base}.state.power`, 'Power', 'boolean', 'sensor.switch', false, true);
+    await ensureState(`${base}.state.volume`, 'Volume', 'number', 'value', 0, true);
+    await ensureState(`${base}.state.muted`, 'Muted', 'boolean', 'media.mute', false, true);
     await ensureState(`${base}.state.app`, 'App', 'string', 'text', '', true);
     await ensureState(`${base}.state.source`, 'Source', 'string', 'text', '', true);
 
-    await ensureState(`${base}.control.power`, 'Power', 'boolean', 'switch', false, false);
+    await ensureState(`${base}.control.power`, 'Power', 'boolean', 'switch.power', false, false);
     await ensureState(`${base}.control.wol`, 'Wake', 'boolean', 'button', false, false);
     await ensureState(`${base}.control.key`, 'Key', 'string', 'text', '', false);
     await ensureState(`${base}.control.volumeUp`, 'Volume Up', 'boolean', 'button', false, false);
@@ -612,18 +612,21 @@ async function ensureDeviceObjects(device) {
 }
 
 async function ensureState(id, name, type, role, def, readOnly) {
+    const common = {
+        name,
+        type,
+        role,
+        read: !role.startsWith('button'),
+        write: !readOnly,
+        def,
+    };
     await adapter.setObjectNotExistsAsync(id, {
         type: 'state',
-        common: {
-            name,
-            type,
-            role,
-            read: true,
-            write: !readOnly,
-            def,
-        },
+        common,
         native: {},
     });
+    // Keep adapter-owned metadata current when roles evolve between versions.
+    await adapter.extendObjectAsync(id, { common });
     if (def !== undefined) {
         const existing = await adapter.getStateAsync(id);
         if (existing === null || existing === undefined) {
