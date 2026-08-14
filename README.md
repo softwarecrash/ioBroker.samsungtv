@@ -1,8 +1,10 @@
-![Logo](admin/samsung.svg)
+<img src="admin/samsung.svg" alt="Samsung TV logo" width="180">
 
 # iobroker.samsungtv
 
 Modern Samsung TV adapter with automatic discovery and multi-device management in one instance (multiple TVs supported in the same instance).
+
+This is an independent community adapter for televisions manufactured by [Samsung Electronics](https://www.samsung.com/).
 
 German documentation is available at `doc/de/README.md`.
 
@@ -48,7 +50,7 @@ Per TV:
   - `id`, `ip`, `mac`, `model`, `uuid`, `api`, `lastSeen`, `paired`, `online`
   - `tokenAuthSupport`
 - `samsungtv.0.<tvname>.state.*`
-  - `power`, `volume`, `muted`, `app`, `source`
+  - `power`, `volume`, `muted`
 - `samsungtv.0.<tvname>.control.*`
   - `power`, `wol`, `key`, `volumeUp`, `volumeDown`, `mute`, `channelUp`, `channelDown`, `launchApp`, `source`
 
@@ -79,8 +81,11 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 
 ## Changelog
-### **WORK IN PROGRESS**
-- Update the compatible ioBroker React admin stack and release tooling.
+### 0.0.27
+- Fix TCP reachability checks and prevent overlapping polling/discovery cycles.
+- Add bounded timer settings and cross-platform ping/ARP handling.
+- Align generated objects and state roles with the current ioBroker catalogue.
+- Complete metadata translations and singleton/compact-mode support.
 
 ### 0.0.26
 - Replace the legacy configuration page with a responsive React admin UI.

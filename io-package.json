@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "samsungtv",
-        "version": "0.0.26",
+        "version": "0.0.27",
         "news": {
+            "0.0.27": {
+                "en": "Safer polling, cross-platform network detection, and corrected object metadata",
+                "de": "Sichereres Polling, plattformübergreifende Netzwerkerkennung und korrigierte Objektmetadaten",
+                "ru": "Безопасный опрос, кроссплатформенное обнаружение сети и исправленные метаданные объектов",
+                "pt": "Consulta mais segura, deteção de rede multiplataforma e metadados de objetos corrigidos",
+                "nl": "Veiliger pollen, platformonafhankelijke netwerkdetectie en gecorrigeerde objectmetadata",
+                "fr": "Interrogation plus sûre, détection réseau multiplateforme et métadonnées d'objets corrigées",
+                "it": "Polling più sicuro, rilevamento di rete multipiattaforma e metadati degli oggetti corretti",
+                "es": "Sondeo más seguro, detección de red multiplataforma y metadatos de objetos corregidos",
+                "pl": "Bezpieczniejsze odpytywanie, wieloplatformowe wykrywanie sieci i poprawione metadane obiektów",
+                "uk": "Безпечніше опитування, кросплатформне виявлення мережі та виправлені метадані об'єктів",
+                "zh-cn": "更安全的轮询、跨平台网络检测以及修正后的对象元数据"
+            },
             "0.0.26": {
                 "en": "Modern React admin UI, complete translations, and reliable encrypted pairing storage",
                 "de": "Moderne React-Admin-UI, vollständige Übersetzungen und zuverlässige verschlüsselte Pairing-Speicherung",
@@ -59,15 +72,15 @@
         "desc": {
             "en": "Modern Samsung TV adapter with discovery and multi-device support",
             "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
-            "ru": "Modern Samsung TV adapter with discovery and multi-device support",
-            "pt": "Modern Samsung TV adapter with discovery and multi-device support",
-            "nl": "Modern Samsung TV adapter with discovery and multi-device support",
-            "fr": "Modern Samsung TV adapter with discovery and multi-device support",
-            "it": "Modern Samsung TV adapter with discovery and multi-device support",
-            "es": "Modern Samsung TV adapter with discovery and multi-device support",
-            "pl": "Modern Samsung TV adapter with discovery and multi-device support",
-            "uk": "Modern Samsung TV adapter with discovery and multi-device support",
-            "zh-cn": "Modern Samsung TV adapter with discovery and multi-device support"
+            "ru": "Современный адаптер для телевизоров Samsung с автоматическим обнаружением и поддержкой нескольких устройств",
+            "pt": "Adaptador moderno para televisores Samsung com descoberta automática e suporte para vários dispositivos",
+            "nl": "Moderne adapter voor Samsung-tv's met automatische detectie en ondersteuning voor meerdere apparaten",
+            "fr": "Adaptateur moderne pour téléviseurs Samsung avec découverte automatique et prise en charge de plusieurs appareils",
+            "it": "Adattatore moderno per TV Samsung con rilevamento automatico e supporto multi-dispositivo",
+            "es": "Adaptador moderno para televisores Samsung con detección automática y compatibilidad con varios dispositivos",
+            "pl": "Nowoczesny adapter telewizorów Samsung z automatycznym wykrywaniem i obsługą wielu urządzeń",
+            "uk": "Сучасний адаптер для телевізорів Samsung з автоматичним виявленням і підтримкою кількох пристроїв",
+            "zh-cn": "支持自动发现和多设备管理的现代三星电视适配器"
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
@@ -90,7 +103,7 @@
         "enabled": false,
         "nondeletable": false,
         "type": "multimedia",
-        "singleton": false,
+        "singleton": true,
         "authors": [
             "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
         ],
@@ -111,7 +124,7 @@
                 "admin": ">=7.6.20"
             }
         ],
-        "compact": false
+        "compact": true
     },
     "encryptedNative": [
         "tokens"

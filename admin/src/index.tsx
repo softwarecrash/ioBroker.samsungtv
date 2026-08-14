@@ -260,7 +260,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                                 disabled={!native.autoScan}
                                 label={I18n.t('Auto scan interval')}
                                 value={native.autoScanInterval ?? 300}
-                                slotProps={{ htmlInput: { min: 30, step: 30 } }}
+                                slotProps={{ htmlInput: { min: 30, max: 86400, step: 30 } }}
                                 onChange={event => this.updateSetting('autoScanInterval', Number(event.target.value))}
                             />
                             <TextField
@@ -269,7 +269,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                                 type="number"
                                 label={I18n.t('Poll interval')}
                                 value={native.pollInterval ?? 30}
-                                slotProps={{ htmlInput: { min: 10, step: 5 } }}
+                                slotProps={{ htmlInput: { min: 10, max: 3600, step: 5 } }}
                                 onChange={event => this.updateSetting('pollInterval', Number(event.target.value))}
                             />
                         </Stack>
@@ -289,7 +289,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                                 type="number"
                                 label={I18n.t('Discovery timeout')}
                                 value={native.discoveryTimeout ?? 5}
-                                slotProps={{ htmlInput: { min: 2, step: 1 } }}
+                                slotProps={{ htmlInput: { min: 2, max: 60, step: 1 } }}
                                 onChange={event => this.updateSetting('discoveryTimeout', Number(event.target.value))}
                                 sx={{ mb: 1 }}
                             />

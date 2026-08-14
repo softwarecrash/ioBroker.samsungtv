@@ -17,9 +17,9 @@ const DEFAULT_CONFIG: AdapterNativeConfig = {
     mdnsServices: '_airplay._tcp,_samsung._tcp,_samsungtv._tcp,_samsungmsf._tcp,_samsungmsf2._tcp,_smartthings._tcp',
 };
 
-function numberSetting(value: unknown, fallback: number, minimum: number): number {
+function numberSetting(value: unknown, fallback: number, minimum: number, maximum: number): number {
     const parsed = typeof value === 'number' ? value : Number.parseInt(String(value), 10);
-    return Number.isFinite(parsed) ? Math.max(minimum, parsed) : fallback;
+    return Number.isFinite(parsed) ? Math.min(maximum, Math.max(minimum, parsed)) : fallback;
 }
 
 function booleanSetting(value: unknown, fallback: boolean): boolean {
@@ -41,9 +41,9 @@ export function migrateNativeConfig(input: unknown): MigrationResult {
         devices,
         tokens: typeof raw.tokens === 'string' ? raw.tokens : '',
         autoScan: booleanSetting(raw.autoScan, DEFAULT_CONFIG.autoScan),
-        autoScanInterval: numberSetting(raw.autoScanInterval, DEFAULT_CONFIG.autoScanInterval, 30),
-        discoveryTimeout: numberSetting(raw.discoveryTimeout, DEFAULT_CONFIG.discoveryTimeout, 2),
-        pollInterval: numberSetting(raw.pollInterval, DEFAULT_CONFIG.pollInterval, 10),
+        autoScanInterval: numberSetting(raw.autoScanInterval, DEFAULT_CONFIG.autoScanInterval, 30, 86400),
+        discoveryTimeout: numberSetting(raw.discoveryTimeout, DEFAULT_CONFIG.discoveryTimeout, 2, 60),
+        pollInterval: numberSetting(raw.pollInterval, DEFAULT_CONFIG.pollInterval, 10, 3600),
         enableSsdp: booleanSetting(raw.enableSsdp, DEFAULT_CONFIG.enableSsdp),
         enableMdns: booleanSetting(raw.enableMdns, DEFAULT_CONFIG.enableMdns),
         enableWol: booleanSetting(raw.enableWol, DEFAULT_CONFIG.enableWol),

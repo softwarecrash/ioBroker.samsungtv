@@ -14,6 +14,8 @@ const dgram = require('node:dgram');
 const { XMLParser } = require('fast-xml-parser');
 const LegacyRemote = require('./lib/legacy/LegacyRemote');
 const SamsungHJ = require('./lib/hj/SamsungTv');
+const { getPingArguments, normalizeMac, parseArpTable, parseMacFromArpOutput } = require('./lib/networkTools');
+const { boundedSeconds } = require('./lib/timerTools');
 
 const HJ_DEVICE_CONFIG = {
     appId: '721b6fce-4ee6-48ba-8045-955a539edadb',
@@ -25,6 +27,9 @@ const WS_SEND_DELAY = 200;
 const PAIRING_TIMEOUT = 20000;
 const HJ_INFO_TIMEOUT = 4000;
 const NO_TOKEN = '__no_token__';
+const MAX_POLL_INTERVAL_SECONDS = 3600;
+const MAX_SCAN_INTERVAL_SECONDS = 86400;
+const MAX_DISCOVERY_TIMEOUT_SECONDS = 60;
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const xmlParser = new XMLParser({ ignoreAttributes: false });
@@ -42,29 +47,35 @@ let pingUnavailable = false;
 let pollTimer;
 let scanTimer;
 let configSaveTimer;
+let pollIntervalMs = 30000;
+let scanIntervalMs = 300000;
+let isUnloading = false;
 let upnpNotifyServer;
 let upnpNotifyPort = 0;
 let upnpSubscriptionsByDeviceId = new Map(); // deviceId -> { sid, eventUrl, renewTimer, expiresAt }
 let upnpSidToDeviceId = new Map(); // sid -> deviceId
 
-function createAdapter() {
-    return new utils.Adapter({
+function createAdapter(options = {}) {
+    adapter = new utils.Adapter({
+        ...options,
         name: 'samsungtv',
         ready: main,
         stateChange: onStateChange,
         message: onMessage,
         unload: onUnload,
     });
+    return adapter;
 }
 
 async function onUnload(callback) {
     try {
+        isUnloading = true;
         if (pollTimer) {
-            adapter.clearInterval(pollTimer);
+            adapter.clearTimeout(pollTimer);
             pollTimer = null;
         }
         if (scanTimer) {
-            adapter.clearInterval(scanTimer);
+            adapter.clearTimeout(scanTimer);
             scanTimer = null;
         }
         if (configSaveTimer) {
@@ -113,13 +124,6 @@ function normalizeId(id) {
         .replace(/^uuid:/i, '')
         .replace(/^urn:uuid:/i, '')
         .trim();
-}
-
-function normalizeMac(mac) {
-    if (!mac || typeof mac !== 'string') {
-        return '';
-    }
-    return mac.trim().toLowerCase();
 }
 
 function normalizeDeviceId(id) {
@@ -594,10 +598,10 @@ async function ensureDeviceObjects(device) {
     await removeStateIfExists(`${base}.info.hjAvailable`);
 
     await ensureState(`${base}.state.power`, 'Power', 'boolean', 'sensor.switch', false, true);
-    await ensureState(`${base}.state.volume`, 'Volume', 'number', 'value', 0, true);
+    await ensureState(`${base}.state.volume`, 'Volume', 'number', 'value.volume', 0, true);
     await ensureState(`${base}.state.muted`, 'Muted', 'boolean', 'media.mute', false, true);
-    await ensureState(`${base}.state.app`, 'App', 'string', 'text', '', true);
-    await ensureState(`${base}.state.source`, 'Source', 'string', 'text', '', true);
+    await removeStateIfExists(`${base}.state.app`);
+    await removeStateIfExists(`${base}.state.source`);
 
     await ensureState(`${base}.control.power`, 'Power', 'boolean', 'switch.power', false, false);
     await ensureState(`${base}.control.wol`, 'Wake', 'boolean', 'button', false, false);
@@ -653,6 +657,7 @@ async function removeStateIfExists(id) {
 }
 
 async function main() {
+    isUnloading = false;
     await migrateLegacyConfigFromSamsung();
     await loadTokensFromConfig();
     await checkLegacyObjects();
@@ -678,15 +683,47 @@ async function main() {
 
     adapter.subscribeStates('*.control.*');
 
-    const pollInterval = Math.max(10, parseInt(adapter.config.pollInterval, 10) || 30) * 1000;
-    pollTimer = adapter.setInterval(pollDevices, pollInterval);
+    pollIntervalMs = boundedSeconds(adapter.config.pollInterval, 30, 10, MAX_POLL_INTERVAL_SECONDS) * 1000;
     await pollDevices();
+    schedulePoll();
 
     if (adapter.config.autoScan) {
-        const interval = Math.max(30, parseInt(adapter.config.autoScanInterval, 10) || 300) * 1000;
-        scanTimer = adapter.setInterval(() => performDiscovery(true), interval);
+        scanIntervalMs = boundedSeconds(adapter.config.autoScanInterval, 300, 30, MAX_SCAN_INTERVAL_SECONDS) * 1000;
         await performDiscovery(true);
+        scheduleScan();
     }
+}
+
+function schedulePoll() {
+    if (isUnloading) {
+        return;
+    }
+    pollTimer = adapter.setTimeout(async () => {
+        pollTimer = null;
+        try {
+            await pollDevices();
+        } catch (e) {
+            adapter.log.warn(`Scheduled polling failed: ${e.message}`);
+        } finally {
+            schedulePoll();
+        }
+    }, pollIntervalMs);
+}
+
+function scheduleScan() {
+    if (isUnloading) {
+        return;
+    }
+    scanTimer = adapter.setTimeout(async () => {
+        scanTimer = null;
+        try {
+            await performDiscovery(true);
+        } catch (e) {
+            adapter.log.warn(`Scheduled discovery failed: ${e.message}`);
+        } finally {
+            scheduleScan();
+        }
+    }, scanIntervalMs);
 }
 
 async function updateDeviceInfoStates(device) {
@@ -1967,7 +2004,8 @@ async function onMessage(obj) {
 }
 
 async function performDiscovery(updateKnownDevices, timeoutOverride) {
-    const timeout = Math.max(2, parseInt(timeoutOverride || adapter.config.discoveryTimeout, 10) || 5) * 1000;
+    const timeout =
+        boundedSeconds(timeoutOverride || adapter.config.discoveryTimeout, 5, 2, MAX_DISCOVERY_TIMEOUT_SECONDS) * 1000;
     const discovered = [];
 
     adapter.log.debug(
@@ -2995,7 +3033,7 @@ async function checkPort(ip, port, timeoutMs) {
             socket.destroy();
             resolve(result);
         };
-        socket.adapter.setTimeout(timeoutMs);
+        socket.setTimeout(timeoutMs);
         socket.once('error', () => finish(false));
         socket.once('timeout', () => finish(false));
         socket.connect(port, ip, () => finish(true));
@@ -3007,8 +3045,9 @@ function pingHost(ip, timeoutMs) {
         return Promise.resolve(null);
     }
     return new Promise(resolve => {
-        const timeoutSec = Math.max(1, Math.ceil((timeoutMs || 1000) / 1000));
-        execFile('ping', ['-c', '1', '-W', String(timeoutSec), ip], { timeout: (timeoutMs || 1000) + 500 }, err => {
+        const timeout = Math.max(250, Math.min(60000, Number(timeoutMs) || 1000));
+        const args = getPingArguments(process.platform, ip, timeout);
+        execFile('ping', args, { timeout: timeout + 500 }, err => {
             if (err) {
                 if (err.code === 'ENOENT') {
                     pingUnavailable = true;
@@ -3022,34 +3061,31 @@ function pingHost(ip, timeoutMs) {
     });
 }
 
+function execFileOutput(command, args, timeoutMs = 2500) {
+    return new Promise(resolve => {
+        execFile(command, args, { timeout: timeoutMs }, (err, stdout) => resolve(err ? '' : String(stdout || '')));
+    });
+}
+
 async function getMacForIp(ip) {
     if (!ip) {
         return '';
     }
-    try {
-        const { exec } = require('node:child_process');
-        return await new Promise(resolve => {
-            exec(`ip neigh show ${ip}`, (err, stdout) => {
-                if (!err && stdout) {
-                    const match = stdout.match(/lladdr\s+([0-9a-f:]{17})/i);
-                    if (match) {
-                        return resolve(normalizeMac(match[1]));
-                    }
-                }
-                exec(`arp -n ${ip}`, (err2, stdout2) => {
-                    if (!err2 && stdout2) {
-                        const match2 = stdout2.match(/([0-9a-f:]{17})/i);
-                        if (match2) {
-                            return resolve(normalizeMac(match2[1]));
-                        }
-                    }
-                    resolve('');
-                });
-            });
-        });
-    } catch (e) {
-        return '';
+    const commands =
+        process.platform === 'win32'
+            ? [['arp', ['-a', ip]]]
+            : [
+                  ['ip', ['neigh', 'show', ip]],
+                  ['arp', ['-n', ip]],
+              ];
+    for (const [command, args] of commands) {
+        const output = await execFileOutput(command, args);
+        const mac = parseMacFromArpOutput(output, ip);
+        if (mac) {
+            return mac;
+        }
     }
+    return '';
 }
 
 function looksLikeIp(value) {
@@ -3090,46 +3126,18 @@ async function getArpTable() {
         return arpCache.map;
     }
 
-    const map = new Map();
-    try {
-        const { exec } = require('node:child_process');
-        await new Promise(resolve => {
-            exec('ip neigh', (err, stdout) => {
-                if (!err && stdout) {
-                    const lines = stdout.split('\n');
-                    for (const line of lines) {
-                        const match = line.match(/^([0-9.]+)\s+.*lladdr\s+([0-9a-f:]{17})/i);
-                        if (match) {
-                            map.set(normalizeMac(match[2]), match[1]);
-                        }
-                    }
-                }
-                resolve();
-            });
-        });
-    } catch (e) {
-        // ignore
-    }
-
-    if (map.size === 0) {
-        try {
-            const { exec } = require('node:child_process');
-            await new Promise(resolve => {
-                exec('arp -an', (err, stdout) => {
-                    if (!err && stdout) {
-                        const lines = stdout.split('\n');
-                        for (const line of lines) {
-                            const match = line.match(/\((\d{1,3}(?:\.\d{1,3}){3})\)\s+at\s+([0-9a-f:]{17})/i);
-                            if (match) {
-                                map.set(normalizeMac(match[2]), match[1]);
-                            }
-                        }
-                    }
-                    resolve();
-                });
-            });
-        } catch (e) {
-            // ignore
+    const commands =
+        process.platform === 'win32'
+            ? [['arp', ['-a']]]
+            : [
+                  ['ip', ['neigh']],
+                  ['arp', ['-an']],
+              ];
+    let map = new Map();
+    for (const [command, args] of commands) {
+        map = parseArpTable(await execFileOutput(command, args));
+        if (map.size > 0) {
+            break;
         }
     }
 
@@ -3137,4 +3145,8 @@ async function getArpTable() {
     return map;
 }
 
-adapter = createAdapter();
+if (require.main !== module) {
+    module.exports = createAdapter;
+} else {
+    createAdapter();
+}

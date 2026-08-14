@@ -28,6 +28,17 @@ describe('configuration migration', () => {
         assert.equal(normalizeMac('aabb.ccdd.eeff'), 'aa:bb:cc:dd:ee:ff');
         assert.equal(normalizeMac('invalid'), '');
     });
+
+    it('bounds timer settings to safe ranges', () => {
+        const result = migrateNativeConfig({
+            autoScanInterval: Number.MAX_SAFE_INTEGER,
+            discoveryTimeout: 999999,
+            pollInterval: 999999,
+        });
+        assert.equal(result.config.autoScanInterval, 86400);
+        assert.equal(result.config.discoveryTimeout, 60);
+        assert.equal(result.config.pollInterval, 3600);
+    });
 });
 
 describe('secret store', () => {

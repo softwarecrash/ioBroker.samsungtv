@@ -1,8 +1,10 @@
-![Logo](../../admin/samsung.svg)
+<img src="../../admin/samsung.svg" alt="Samsung-TV-Logo" width="180">
 
 # iobroker.samsungtv
 
 Moderner Samsung-TV-Adapter mit automatischer Discovery und Multi-Device-Management in einer einzigen Instanz.
+
+Dies ist ein unabhängiger Community-Adapter für Fernseher von [Samsung Electronics](https://www.samsung.com/).
 
 ## Features
 - Automatische Discovery via SSDP/UPnP und optional mDNS
@@ -46,7 +48,7 @@ Pro TV:
   - `id`, `ip`, `mac`, `model`, `uuid`, `api`, `lastSeen`, `paired`, `online`
   - `tokenAuthSupport`
 - `samsungtv.0.<tvname>.state.*`
-  - `power`, `volume`, `muted`, `app`, `source`
+  - `power`, `volume`, `muted`
 - `samsungtv.0.<tvname>.control.*`
   - `power`, `wol`, `key`, `volumeUp`, `volumeDown`, `mute`, `channelUp`, `channelDown`, `launchApp`, `source`
 
