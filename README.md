@@ -18,26 +18,28 @@ German documentation is available at `doc/de/README.md`.
 - No token output in logs or UI (tokens are stored encrypted)
 
 ## Configuration
-In the admin UI:
-- **Auto Scan**: periodic discovery
-- **Auto Scan Interval (s)**: interval for automatic discovery
-- **Discovery Timeout (s)**: scan timeout
-- **Enable SSDP** / **Enable mDNS**: discovery sources
-- **mDNS Services**: comma-separated service types (best effort)
-- **Enable Wake-on-LAN**: enable WOL
-- **Power Poll Interval (s)**: interval for power checks
+The adapter uses ioBroker's native JSONConfig and Device Manager components. They automatically follow the active admin theme and adapt to desktop and mobile layouts.
+
+The **Configuration** tab contains:
+- **Auto scan** and **Auto scan interval** for periodic discovery
+- **Poll interval** for power, volume, and mute updates
+- **Discovery timeout**
+- **Enable SSDP** / **Enable mDNS** discovery sources
+- **Enable Wake-on-LAN**
+- **mDNS services** in expert mode (comma-separated, best effort)
 
 ### Add devices
-1. Start **Scan**.
-2. Add a discovered TV via **Add**.
-3. Optionally adjust name/IP.
-4. **Save**.
+1. Open the **TV management** tab.
+2. Start **Scan** or use **Manual add** as a fallback.
+3. Add a discovered TV and choose its readable object-tree name.
+
+Device Manager actions are applied and persisted immediately. The regular ioBroker save button applies settings from the **Configuration** tab.
 
 ### Pairing
-- **Tizen**: when you click **Pair**, the TV shows a prompt (usually **Allow/Cancel**, no PIN). Confirm, then save.
-- **H/J series**: click **Pair** → TV shows PIN → enter PIN → save.
+- **Tizen**: when you click **Pair**, the TV shows a prompt (usually **Allow/Cancel**, no PIN). Confirm it on the TV.
+- **H/J series**: click **Pair** → TV shows PIN → enter PIN in the native dialog.
 
-Tokens/identities are stored encrypted in the adapter config.
+The dynamic device registry is stored in ioBroker's persistent instance data directory so Device Manager actions cannot be overwritten by an already open settings form. Tokens/identities in that registry are encrypted with the ioBroker system secret and the file is written with owner-only permissions. Existing `native.devices` and encrypted `native.tokens` values are imported automatically on the first start.
 
 If **no prompt** appears during pairing:
 - TV: **Device Connection Manager** → enable **Access Notification**.
@@ -81,6 +83,12 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 
 ## Changelog
+### 0.0.28
+- Replace the custom React configuration page with native ioBroker JSONConfig and Device Manager components.
+- Add responsive discovery, manual-add, details, pairing, rename, and remove workflows.
+- Move the dynamic registry to persistent instance data with system-secret encryption and automatic migration.
+- Remove obsolete custom admin message handlers and frontend dependencies.
+
 ### 0.0.27
 - Fix TCP reachability checks and prevent overlapping polling/discovery cycles.
 - Add bounded timer settings and cross-platform ping/ARP handling.
@@ -98,12 +106,12 @@ Older changes are documented in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
 ## How to test (short)
 1. Install the adapter and create an instance.
-2. Open admin, start **Scan**.
+2. Open **TV management** and start **Scan**.
 3. Add a TV and set a name (e.g. `tv-livingroom`).
-4. **Save**. Verify object tree `samsungtv.0.tv-livingroom.*`.
+4. Verify object tree `samsungtv.0.tv-livingroom.*`.
 5. Run **Pair** and confirm on the TV.
 6. Test `control.*` objects (e.g. `control.mute`).
-7. Rename the TV and save again: object tree should migrate cleanly.
+7. Rename the TV in Device Manager: the object tree should migrate cleanly.
 
 ## License
 MIT

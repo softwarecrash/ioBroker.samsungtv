@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "samsungtv",
-        "version": "0.0.27",
+        "version": "0.0.28",
         "news": {
+            "0.0.28": {
+                "en": "Native JSONConfig and Device Manager UI with responsive device discovery and pairing",
+                "de": "Native JSONConfig- und Device-Manager-Oberfläche mit responsiver Gerätesuche und Pairing",
+                "ru": "Нативный интерфейс JSONConfig и Device Manager с адаптивным обнаружением и сопряжением устройств",
+                "pt": "Interface nativa JSONConfig e Device Manager com deteção e emparelhamento responsivos",
+                "nl": "Native JSONConfig- en Device Manager-interface met responsieve apparaatdetectie en koppeling",
+                "fr": "Interface native JSONConfig et Device Manager avec détection et appairage adaptatifs",
+                "it": "Interfaccia nativa JSONConfig e Device Manager con rilevamento e associazione adattivi",
+                "es": "Interfaz nativa JSONConfig y Device Manager con detección y emparejamiento adaptables",
+                "pl": "Natywny interfejs JSONConfig i Device Manager z responsywnym wykrywaniem i parowaniem urządzeń",
+                "uk": "Нативний інтерфейс JSONConfig і Device Manager з адаптивним виявленням та спарюванням пристроїв",
+                "zh-cn": "原生 JSONConfig 和设备管理器界面，支持响应式设备发现与配对"
+            },
             "0.0.27": {
                 "en": "Safer polling, cross-platform network detection, and corrected object metadata",
                 "de": "Sichereres Polling, plattformübergreifende Netzwerkerkennung und korrigierte Objektmetadaten",
@@ -111,9 +124,8 @@
         "dataSource": "poll",
         "tier": 2,
         "adminUI": {
-            "config": "html"
+            "config": "json"
         },
-        "messagebox": true,
         "dependencies": [
             {
                 "js-controller": ">=6.0.11"
@@ -124,7 +136,10 @@
                 "admin": ">=7.6.20"
             }
         ],
-        "compact": true
+        "compact": true,
+        "supportedMessages": {
+            "deviceManager": true
+        }
     },
     "encryptedNative": [
         "tokens"

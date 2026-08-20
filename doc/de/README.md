@@ -16,26 +16,28 @@ Dies ist ein unabhängiger Community-Adapter für Fernseher von [Samsung Electro
 - Keine Token-Ausgabe in Logs oder UI (Token verschlüsselt gespeichert)
 
 ## Konfiguration
-In der Admin-Oberfläche:
-- **Auto Scan**: periodische Discovery
-- **Auto Scan Interval (s)**: Intervall für automatische Discovery
-- **Discovery Timeout (s)**: Timeout für Scan
-- **Enable SSDP** / **Enable mDNS**: Discovery-Quellen
-- **mDNS Services**: Komma-getrennte Service-Typen (best effort)
-- **Enable Wake-on-LAN**: WOL aktivieren
-- **Power Poll Interval (s)**: Intervall für Power-Check
+Der Adapter verwendet die nativen ioBroker-Komponenten JSONConfig und Device Manager. Dadurch werden das aktive Admin-Theme sowie Desktop- und Mobilansichten automatisch unterstützt.
+
+Der Tab **Konfiguration** enthält:
+- **Automatischer Scan** und **Auto-Scan-Intervall** für die periodische Suche
+- **Abfrageintervall** für Power-, Lautstärke- und Mute-Status
+- **Discovery-Timeout**
+- **SSDP aktivieren** / **mDNS aktivieren** als Discovery-Quellen
+- **Wake-on-LAN aktivieren**
+- **mDNS-Dienste** im Expertenmodus (Komma-getrennt, best effort)
 
 ### Geräte hinzufügen
-1. **Scan** starten.
-2. Gefundenes TV-Gerät per **Add** hinzufügen.
-3. Optional Name/IP anpassen.
-4. **Speichern**.
+1. Den Tab **TV-Verwaltung** öffnen.
+2. **Netzwerk scannen** starten oder ersatzweise **Manuell hinzufügen** verwenden.
+3. Einen gefundenen TV hinzufügen und einen lesbaren Namen für den Objektbaum vergeben.
+
+Aktionen im Device Manager werden sofort angewendet und gespeichert. Der normale ioBroker-Speichern-Button übernimmt Einstellungen aus dem Tab **Konfiguration**.
 
 ### Pairing
-- **Tizen**: Bei **Pair** erscheint ein Hinweis am TV (meist **Zulassen/Abbrechen**, kein PIN). Bestätigen, dann speichern.
-- **H/J-Serie**: **Pair** klicken → TV zeigt PIN → PIN eingeben → speichern.
+- **Tizen**: Bei **Pairing starten** erscheint ein Hinweis am TV (meist **Zulassen/Abbrechen**, kein PIN). Am TV bestätigen.
+- **H/J-Serie**: **Pairing starten** klicken → TV zeigt PIN → PIN im nativen Dialog eingeben.
 
-Token/Identitäten werden verschlüsselt im Adapter-Config gespeichert.
+Die dynamische Geräte-Registry liegt im persistenten ioBroker-Instanzdatenverzeichnis. Dadurch können Device-Manager-Aktionen nicht von einem bereits geöffneten Einstellungsformular überschrieben werden. Token/Identitäten werden dort mit dem ioBroker-Systemschlüssel verschlüsselt und die Datei erhält ausschließlich Besitzerrechte. Vorhandene Werte aus `native.devices` und dem verschlüsselten `native.tokens` werden beim ersten Start automatisch importiert.
 
 Falls beim Pairing **kein Hinweis** erscheint:
 - TV: **Geräte-Verbindungsmanager / Device Connection Manager** → **Zugriffsbenachrichtigung** aktivieren.
@@ -83,12 +85,12 @@ Siehe `io-package.json` (`common.news`) oder die GitHub-Releases für Details.
 
 ## How to test (Kurz)
 1. Adapter installieren und Instanz anlegen.
-2. Admin öffnen, **Scan** starten.
+2. **TV-Verwaltung** öffnen und **Netzwerk scannen** starten.
 3. TV hinzufügen und Namen (z.B. `tv-wohnzimmer`) setzen.
-4. **Speichern**. Prüfen, ob Objektbaum `samsungtv.0.tv-wohnzimmer.*` erscheint.
+4. Prüfen, ob Objektbaum `samsungtv.0.tv-wohnzimmer.*` erscheint.
 5. **Pair** ausführen und am TV bestätigen.
 6. In den Objekten `control.*` testen (z.B. `control.mute`).
-7. TV umbenennen und erneut speichern: Objektbaum soll sauber migriert werden.
+7. TV im Device Manager umbenennen: Der Objektbaum soll sauber migriert werden.
 
 ## Lizenz
 MIT

@@ -11,11 +11,14 @@ const net = require('node:net');
 const { execFile } = require('node:child_process');
 const os = require('node:os');
 const dgram = require('node:dgram');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 const { XMLParser } = require('fast-xml-parser');
 const LegacyRemote = require('./lib/legacy/LegacyRemote');
 const SamsungHJ = require('./lib/hj/SamsungTv');
 const { getPingArguments, normalizeMac, parseArpTable, parseMacFromArpOutput } = require('./lib/networkTools');
 const { boundedSeconds } = require('./lib/timerTools');
+const { SamsungTvDeviceManagement } = require('./lib/SamsungTvDeviceManagement');
 
 const HJ_DEVICE_CONFIG = {
     appId: '721b6fce-4ee6-48ba-8045-955a539edadb',
@@ -41,12 +44,14 @@ let devicesByName = new Map();
 let devicesByMac = new Map();
 let discoveredByIp = new Map();
 let tokens = { tizen: {}, hj: {} };
-let lastDiscovery = 0;
+let configuredDevicesRaw = [];
 let pingUnavailable = false;
 
 let pollTimer;
 let scanTimer;
-let configSaveTimer;
+let registrySaveTimer;
+let registryWritePromise = Promise.resolve();
+let registryDirty = false;
 let pollIntervalMs = 30000;
 let scanIntervalMs = 300000;
 let isUnloading = false;
@@ -61,7 +66,6 @@ function createAdapter(options = {}) {
         name: 'samsungtv',
         ready: main,
         stateChange: onStateChange,
-        message: onMessage,
         unload: onUnload,
     });
     return adapter;
@@ -78,9 +82,12 @@ async function onUnload(callback) {
             adapter.clearTimeout(scanTimer);
             scanTimer = null;
         }
-        if (configSaveTimer) {
-            adapter.clearTimeout(configSaveTimer);
-            configSaveTimer = null;
+        if (registrySaveTimer) {
+            adapter.clearTimeout(registrySaveTimer);
+            registrySaveTimer = null;
+        }
+        if (registryDirty) {
+            await persistRegistry();
         }
         cleanupUpnpSubscriptions();
         stopUpnpNotifyServer();
@@ -220,33 +227,88 @@ function getHjIdentity(deviceId) {
     return (tokens.hj && tokens.hj[deviceId]) || null;
 }
 
-function setInMemoryToken(deviceId, tokenValue) {
+async function setInMemoryToken(deviceId, tokenValue) {
     if (!tokens.tizen) {
         tokens.tizen = {};
     }
     tokens.tizen[deviceId] = tokenValue;
-    persistTokens();
+    await persistRegistry();
 }
 
-function setInMemoryHjIdentity(deviceId, identity) {
+async function setInMemoryHjIdentity(deviceId, identity) {
     if (!tokens.hj) {
         tokens.hj = {};
     }
     tokens.hj[deviceId] = identity;
-    persistTokens();
+    await persistRegistry();
 }
 
-function persistTokens() {
+function cloneConfigDevices() {
+    return JSON.parse(JSON.stringify(Array.isArray(adapter.config.devices) ? adapter.config.devices : []));
+}
+
+function getRegistryPath() {
+    return path.join(utils.getAbsoluteInstanceDataDir(adapter), 'device-registry.json');
+}
+
+async function loadPersistentRegistry() {
+    const registryPath = getRegistryPath();
     try {
-        adapter.config.tokens = JSON.stringify(tokens);
-        scheduleConfigSave();
+        const stored = JSON.parse(await fs.readFile(registryPath, 'utf8'));
+        if (!stored || stored.version !== 1 || !Array.isArray(stored.devices)) {
+            throw new Error('unsupported registry format');
+        }
+        configuredDevicesRaw = stored.devices;
+        if (typeof stored.encryptedSecrets === 'string' && stored.encryptedSecrets) {
+            const decrypted = adapter.decrypt(stored.encryptedSecrets);
+            if (!applyParsedTokens(JSON.parse(decrypted))) {
+                throw new Error('invalid encrypted secrets');
+            }
+        }
+        adapter.log.debug(`Loaded persistent device registry with ${configuredDevicesRaw.length} devices.`);
+        return;
     } catch (e) {
-        adapter.log.warn(`Failed to persist tokens: ${e.message}`);
+        if (e.code !== 'ENOENT') {
+            adapter.log.warn(`Could not load persistent device registry: ${e.message}`);
+        }
+    }
+
+    configuredDevicesRaw = cloneConfigDevices();
+    await persistRegistry();
+    if (configuredDevicesRaw.length) {
+        adapter.log.info(`Migrated ${configuredDevicesRaw.length} configured TVs to the persistent device registry.`);
+    }
+}
+
+async function persistRegistry() {
+    registryDirty = false;
+    const registryPath = getRegistryPath();
+    const temporaryPath = `${registryPath}.tmp`;
+    const payload = JSON.stringify(
+        {
+            version: 1,
+            devices: configuredDevicesRaw,
+            encryptedSecrets: adapter.encrypt(JSON.stringify(tokens)),
+        },
+        null,
+        2,
+    );
+    registryWritePromise = registryWritePromise.then(async () => {
+        await fs.mkdir(path.dirname(registryPath), { recursive: true });
+        await fs.writeFile(temporaryPath, payload, { encoding: 'utf8', mode: 0o600 });
+        await fs.rename(temporaryPath, registryPath);
+    });
+    try {
+        await registryWritePromise;
+    } catch (e) {
+        registryDirty = true;
+        adapter.log.warn(`Failed to persist device registry: ${e.message}`);
+        throw e;
     }
 }
 
 function getConfiguredDevices() {
-    const list = Array.isArray(adapter.config.devices) ? adapter.config.devices : [];
+    const list = configuredDevicesRaw;
     const existingNames = new Set();
     const result = [];
 
@@ -278,7 +340,7 @@ function getConfiguredDevices() {
         const device = {
             id,
             name: safeName,
-            displayName: rawName,
+            displayName: raw.displayName || raw.friendlyName || rawName,
             ip: raw.ip || '',
             mac: normalizeMac(raw.mac || ''),
             model: raw.model || '',
@@ -297,17 +359,203 @@ function getConfiguredDevices() {
     return result;
 }
 
-function scheduleConfigSave() {
-    if (configSaveTimer) {
-        adapter.clearTimeout(configSaveTimer);
+function rebuildDeviceMaps(devices) {
+    devicesById = new Map();
+    devicesByName = new Map();
+    devicesByMac = new Map();
+    for (const device of devices) {
+        devicesById.set(device.id, device);
+        devicesByName.set(device.name, device);
+        if (device.mac) {
+            devicesByMac.set(device.mac, device);
+        }
     }
-    configSaveTimer = adapter.setTimeout(async () => {
-        configSaveTimer = null;
+}
+
+async function reloadConfiguredDevices() {
+    const devices = getConfiguredDevices();
+    await reconcileDeviceObjects(devices);
+    rebuildDeviceMaps(devices);
+    for (const device of devices) {
+        await ensureDeviceObjects(device);
+        await updateDeviceInfoStates(device);
+    }
+    return devices;
+}
+
+function configuredDeviceMatches(raw, id) {
+    if (!raw || typeof raw !== 'object') {
+        return false;
+    }
+    const rawId = normalizeDeviceId(normalizeId(raw.id || raw.uuid || raw.usn || raw.mac || raw.ip || ''));
+    return rawId === normalizeDeviceId(id);
+}
+
+function findDiscoveredDevice(id) {
+    const normalizedId = normalizeDeviceId(id);
+    return Array.from(discoveredByIp.values()).find(device => normalizeDeviceId(device.id) === normalizedId) || null;
+}
+
+function isConfiguredDevice(candidate) {
+    const id = normalizeDeviceId(candidate.id || '');
+    const mac = normalizeMac(candidate.mac || '');
+    return getConfiguredDevices().some(
+        device =>
+            (id && device.id === id) ||
+            (mac && device.mac === mac) ||
+            (!id && !mac && candidate.ip && device.ip === candidate.ip),
+    );
+}
+
+function suggestDeviceName(candidate) {
+    const used = new Set(getConfiguredDevices().map(device => device.name));
+    const base =
+        sanitizeName(candidate.name || candidate.displayName || candidate.model || 'tv') ||
+        `tv-${normalizeDeviceId(candidate.id || '').slice(0, 6) || 'samsung'}`;
+    return ensureUniqueName(base, used, 'tv-samsung');
+}
+
+function normalizeManagedDevice(candidate) {
+    const mac = normalizeMac(candidate.mac || '');
+    const id = normalizeDeviceId(candidate.id || candidate.uuid || candidate.usn || mac || candidate.ip || '');
+    if (!id) {
+        throw new Error('A stable device ID, MAC address, or IP address is required');
+    }
+    if (!candidate.ip && !mac) {
+        throw new Error('An IP or MAC address is required');
+    }
+    const name = sanitizeName(candidate.name || candidate.displayName || candidate.model || '');
+    if (!name) {
+        throw new Error('A device name is required');
+    }
+    return {
+        ...candidate,
+        id,
+        name,
+        displayName: candidate.displayName || candidate.name || candidate.model || name,
+        ip: candidate.ip || '',
+        mac,
+        model: candidate.model || '',
+        api: candidate.api || 'unknown',
+        protocol: candidate.protocol || '',
+        port: Number(candidate.port) || 0,
+        uuid: candidate.uuid || '',
+        source: candidate.source || 'manual',
+    };
+}
+
+async function addManagedDevice(candidate) {
+    const device = normalizeManagedDevice(candidate);
+    if (isConfiguredDevice(device)) {
+        throw new Error('This TV is already configured');
+    }
+    const usedNames = new Set(getConfiguredDevices().map(entry => entry.name));
+    if (usedNames.has(device.name)) {
+        throw new Error('This device name is already in use');
+    }
+    configuredDevicesRaw = [...configuredDevicesRaw, device];
+    await persistRegistry();
+    await reloadConfiguredDevices();
+    return device;
+}
+
+async function renameManagedDevice(id, requestedName) {
+    const name = sanitizeName(requestedName || '');
+    if (!name) {
+        throw new Error('A device name is required');
+    }
+    const existing = getConfiguredDevices();
+    if (existing.some(device => device.id !== normalizeDeviceId(id) && device.name === name)) {
+        throw new Error('This device name is already in use');
+    }
+    let found = false;
+    for (const raw of configuredDevicesRaw) {
+        if (configuredDeviceMatches(raw, id)) {
+            raw.name = name;
+            raw.displayName = requestedName;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        throw new Error('Unknown device');
+    }
+    await persistRegistry();
+    await reloadConfiguredDevices();
+}
+
+async function removeManagedDevice(id) {
+    const normalizedId = normalizeDeviceId(id);
+    const before = configuredDevicesRaw;
+    const after = before.filter(raw => !configuredDeviceMatches(raw, normalizedId));
+    if (after.length === before.length) {
+        throw new Error('Unknown device');
+    }
+    configuredDevicesRaw = after;
+    if (tokens.tizen) {
+        delete tokens.tizen[normalizedId];
+    }
+    if (tokens.hj) {
+        delete tokens.hj[normalizedId];
+    }
+    await persistRegistry();
+    await reloadConfiguredDevices();
+}
+
+async function pairManagedTizen(device) {
+    const token = await pairTizen(device);
+    await setInMemoryToken(device.id, token);
+    if (device.api !== 'tizen') {
+        device.api = 'tizen';
+        for (const raw of configuredDevicesRaw) {
+            if (configuredDeviceMatches(raw, device.id)) {
+                raw.api = 'tizen';
+            }
+        }
+        await persistRegistry();
+    }
+    await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
+}
+
+async function confirmManagedHjPin(device, pin) {
+    const identity = await hjConfirmPin(device, pin);
+    await setInMemoryHjIdentity(device.id, identity);
+    await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
+}
+
+function createDeviceManagementService() {
+    return {
+        getConfiguredDevices,
+        getDiscoveredDevices: () => Array.from(discoveredByIp.values()),
+        isConfigured: isConfiguredDevice,
+        isDevicePaired,
+        suggestName: suggestDeviceName,
+        findDevice: id => devicesById.get(normalizeDeviceId(id)) || findDiscoveredDevice(id),
+        discover: () => performDiscovery(false),
+        addDevice: addManagedDevice,
+        renameDevice: renameManagedDevice,
+        removeDevice: removeManagedDevice,
+        requestPin: hjRequestPin,
+        confirmPin: confirmManagedHjPin,
+        pairTizen: pairManagedTizen,
+    };
+}
+
+function scheduleRegistrySave() {
+    if (isUnloading) {
+        return;
+    }
+    registryDirty = true;
+    if (registrySaveTimer) {
+        adapter.clearTimeout(registrySaveTimer);
+    }
+    registrySaveTimer = adapter.setTimeout(async () => {
+        registrySaveTimer = null;
         try {
-            await adapter.updateConfig(adapter.config);
-            adapter.log.debug('Persisted updated device config.');
+            await persistRegistry();
+            adapter.log.debug('Persisted updated device registry.');
         } catch (e) {
-            adapter.log.warn(`Failed to persist device config: ${e.message}`);
+            // persistRegistry logs the generic failure without exposing data.
         }
     }, 1500);
 }
@@ -316,7 +564,7 @@ function updateConfigDeviceFromDiscovery(match, info) {
     if (!adapter.config) {
         return;
     }
-    const list = Array.isArray(adapter.config.devices) ? adapter.config.devices : [];
+    const list = configuredDevicesRaw;
     if (!list.length) {
         return;
     }
@@ -381,7 +629,7 @@ function updateConfigDeviceFromDiscovery(match, info) {
     }
 
     if (updated) {
-        scheduleConfigSave();
+        scheduleRegistrySave();
     }
 }
 
@@ -658,28 +906,13 @@ async function removeStateIfExists(id) {
 
 async function main() {
     isUnloading = false;
+    adapter.samsungTvDeviceManagement = new SamsungTvDeviceManagement(adapter, createDeviceManagementService());
     await migrateLegacyConfigFromSamsung();
     await loadTokensFromConfig();
+    await loadPersistentRegistry();
     await checkLegacyObjects();
 
-    const devices = getConfiguredDevices();
-    await reconcileDeviceObjects(devices);
-
-    devicesById = new Map();
-    devicesByName = new Map();
-    devicesByMac = new Map();
-    for (const device of devices) {
-        devicesById.set(device.id, device);
-        devicesByName.set(device.name, device);
-        if (device.mac) {
-            devicesByMac.set(device.mac, device);
-        }
-    }
-
-    for (const device of devices) {
-        await ensureDeviceObjects(device);
-        await updateDeviceInfoStates(device);
-    }
+    await reloadConfiguredDevices();
 
     adapter.subscribeStates('*.control.*');
 
@@ -1873,136 +2106,6 @@ async function hjConfirmPin(device, pin) {
     return identity;
 }
 
-async function onMessage(obj) {
-    if (!obj || !obj.command) {
-        return;
-    }
-
-    if (obj.command === 'discover') {
-        const timeout = (obj.message && obj.message.timeout) || adapter.config.discoveryTimeout || 5;
-        try {
-            const result = await performDiscovery(false, timeout);
-            adapter.sendTo(obj.from, obj.command, { ok: true, devices: result, lastScan: lastDiscovery }, obj.callback);
-        } catch (e) {
-            adapter.sendTo(obj.from, obj.command, { ok: false, error: e.message }, obj.callback);
-        }
-        return;
-    }
-
-    if (obj.command === 'getDiscovered') {
-        const devices = Array.from(discoveredByIp.values()).map(device => ({
-            ...device,
-            paired: isDevicePaired(device),
-        }));
-        adapter.sendTo(obj.from, obj.command, { ok: true, devices, lastScan: lastDiscovery }, obj.callback);
-        return;
-    }
-
-    if (obj.command === 'getAdminState') {
-        const configured = getConfiguredDevices().map(device => ({
-            ...device,
-            paired: isDevicePaired(device),
-        }));
-        const discovered = Array.from(discoveredByIp.values()).map(device => ({
-            ...device,
-            paired: isDevicePaired(device),
-        }));
-        adapter.sendTo(
-            obj.from,
-            obj.command,
-            { ok: true, devices: configured, discovered, lastScan: lastDiscovery },
-            obj.callback,
-        );
-        return;
-    }
-
-    if (obj.command === 'forgetDeviceSecret') {
-        const deviceId = normalizeDeviceId(obj.message && obj.message.id);
-        if (!deviceId) {
-            adapter.sendTo(obj.from, obj.command, { ok: false, error: 'Missing device ID' }, obj.callback);
-            return;
-        }
-        if (tokens.tizen) {
-            delete tokens.tizen[deviceId];
-        }
-        if (tokens.hj) {
-            delete tokens.hj[deviceId];
-        }
-        persistTokens();
-        adapter.sendTo(obj.from, obj.command, { ok: true }, obj.callback);
-        return;
-    }
-
-    if (obj.command === 'pair') {
-        const deviceId = obj.message && obj.message.id;
-        const pin = obj.message && obj.message.pin;
-        adapter.log.debug(`Pairing request received for ${deviceId || 'unknown device'}`);
-        let device = devicesById.get(deviceId);
-        if (!device && obj.message && obj.message.device) {
-            const d = obj.message.device;
-            const id = normalizeId(d.id || d.uuid || d.usn || deviceId || d.ip || '');
-            device = {
-                id,
-                name: d.name || `tv-${id.slice(0, 6)}`,
-                displayName: d.displayName || d.name || d.model || '',
-                ip: d.ip || '',
-                mac: d.mac || '',
-                model: d.model || '',
-                api: d.api || 'tizen',
-                protocol: d.protocol || '',
-                port: d.port || 0,
-                uuid: d.uuid || '',
-                source: d.source || 'pair',
-            };
-            if (device.ip) {
-                discoveredByIp.set(device.ip, device);
-            }
-        }
-        if (!device) {
-            adapter.sendTo(obj.from, obj.command, { ok: false, error: 'Unknown device' }, obj.callback);
-            return;
-        }
-        try {
-            if (device.api === 'hj') {
-                try {
-                    if (!pin) {
-                        await hjRequestPin(device);
-                        adapter.sendTo(obj.from, obj.command, { ok: true, needsPin: true }, obj.callback);
-                        return;
-                    }
-                    const identity = await hjConfirmPin(device, pin);
-                    setInMemoryHjIdentity(device.id, identity);
-                    await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
-                    adapter.sendTo(obj.from, obj.command, { ok: true, paired: true }, obj.callback);
-                    return;
-                } catch (e) {
-                    adapter.log.warn(`HJ pairing failed for ${device.name}: ${e.message}`);
-                    adapter.sendTo(
-                        obj.from,
-                        obj.command,
-                        { ok: false, error: `HJ pairing failed: ${e.message}` },
-                        obj.callback,
-                    );
-                    return;
-                }
-            }
-
-            const token = await pairTizen(device);
-            setInMemoryToken(device.id, token);
-            if (device.api !== 'tizen') {
-                device.api = 'tizen';
-                await updateDeviceInfoStates(device);
-            }
-            await adapter.setStateAsync(`${device.name}.info.paired`, true, true);
-            adapter.sendTo(obj.from, obj.command, { ok: true, paired: true }, obj.callback);
-        } catch (e) {
-            adapter.log.debug(`Pairing failed for ${device.name}: ${e.message}`);
-            adapter.sendTo(obj.from, obj.command, { ok: false, error: e.message }, obj.callback);
-        }
-        return;
-    }
-}
-
 async function performDiscovery(updateKnownDevices, timeoutOverride) {
     const timeout =
         boundedSeconds(timeoutOverride || adapter.config.discoveryTimeout, 5, 2, MAX_DISCOVERY_TIMEOUT_SECONDS) * 1000;
@@ -2078,7 +2181,6 @@ async function performDiscovery(updateKnownDevices, timeoutOverride) {
         }
     }
 
-    lastDiscovery = Date.now();
     adapter.log.debug(
         `Discovery finished: ssdp=${ssdpCount}, mdns=${mdnsCount}, unique=${byIp.size}, probed=${results.length}`,
     );

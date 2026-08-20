@@ -1,5 +1,14 @@
 # DEV_NOTES (Legacy Analysis)
 
+## Current admin architecture (0.0.28)
+- Settings use native ioBroker JSONConfig from `admin/jsonConfig.json5`.
+- Discovery and device lifecycle actions use the embedded ioBroker Device Manager backed by `@iobroker/dm-utils`.
+- Pairing uses Device Manager progress and form dialogs; secrets never pass through form data or frontend state.
+- Device actions persist configuration immediately, while ordinary instance settings use the standard JSONConfig save flow.
+- Dynamic device data is stored in `<ioBroker data>/samsungtv.<instance>/device-registry.json`; secrets inside are encrypted with the ioBroker system secret and the file mode is `0600`.
+- Legacy `native.devices` and encrypted `native.tokens` are migration inputs only. This avoids stale JSONConfig data overwriting Device Manager changes.
+- The previous custom React bundle and custom admin message protocol have been removed.
+
 ## Environment
 - Legacy adapter sources found in:
   - `/home/iobroker/ioBroker.samsung-master/ioBroker.samsung-master`
