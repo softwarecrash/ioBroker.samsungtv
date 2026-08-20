@@ -7,7 +7,7 @@ const JSON5 = require('json5');
 
 describe('Admin translations', () => {
     const directory = path.join(__dirname, '..', 'admin', 'i18n');
-    const translationFile = language => path.join(directory, language, 'translations.json');
+    const translationFile = language => path.join(directory, `${language}.json`);
     const languages = ['de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'];
     const english = JSON.parse(fs.readFileSync(translationFile('en'), 'utf8'));
     const expectedKeys = Object.keys(english).sort();

@@ -52,6 +52,7 @@
         "@alcalzone/release-script-plugin-iobroker": "^5.2.0",
         "@alcalzone/release-script-plugin-license": "^5.2.2",
         "@alcalzone/release-script-plugin-manual-review": "^5.2.0",
+        "@iobroker/adapter-dev": "^1.5.0",
         "@iobroker/eslint-config": "^2.3.4",
         "@iobroker/testing": "^5.3.0",
         "@tsconfig/node22": "^22.0.5",
@@ -64,7 +65,8 @@
         "build": "npm run build:typescript",
         "build:typescript": "tsc -p tsconfig.build.json",
         "check": "tsc -p tsconfig.json --noEmit",
-        "clean": "rm -rf build coverage",
+        "check:repository": "npm run clean && npx --yes @iobroker/repochecker@5.20.13 --local softwarecrash/ioBroker.samsungtv main",
+        "clean": "clean-dir build && clean-dir coverage",
         "pretest": "npm run build:typescript",
         "test:js": "node scripts/run-mocha.js --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
         "test:unit": "node scripts/run-mocha.js \"build/**/*.test.js\" --exit",
@@ -72,6 +74,7 @@
         "test:integration": "node scripts/run-mocha.js test/integration --exit",
         "test": "npm run test:unit && npm run test:js && npm run test:package",
         "lint": "eslint -c eslint.config.mjs .",
+        "translate": "translate-adapter",
         "release": "release-script"
     }
 }
