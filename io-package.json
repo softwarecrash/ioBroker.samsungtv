@@ -1,164 +1,164 @@
 {
-    "common": {
-        "name": "samsungtv",
-        "version": "0.0.28",
-        "news": {
-            "0.0.28": {
-                "en": "Native JSONConfig and Device Manager UI with responsive device discovery and pairing",
-                "de": "Native JSONConfig- und Device-Manager-Oberfläche mit responsiver Gerätesuche und Pairing",
-                "ru": "Нативный интерфейс JSONConfig и Device Manager с адаптивным обнаружением и сопряжением устройств",
-                "pt": "Interface nativa JSONConfig e Device Manager com deteção e emparelhamento responsivos",
-                "nl": "Native JSONConfig- en Device Manager-interface met responsieve apparaatdetectie en koppeling",
-                "fr": "Interface native JSONConfig et Device Manager avec détection et appairage adaptatifs",
-                "it": "Interfaccia nativa JSONConfig e Device Manager con rilevamento e associazione adattivi",
-                "es": "Interfaz nativa JSONConfig y Device Manager con detección y emparejamiento adaptables",
-                "pl": "Natywny interfejs JSONConfig i Device Manager z responsywnym wykrywaniem i parowaniem urządzeń",
-                "uk": "Нативний інтерфейс JSONConfig і Device Manager з адаптивним виявленням та спарюванням пристроїв",
-                "zh-cn": "原生 JSONConfig 和设备管理器界面，支持响应式设备发现与配对"
-            },
-            "0.0.27": {
-                "en": "Safer polling, cross-platform network detection, and corrected object metadata",
-                "de": "Sichereres Polling, plattformübergreifende Netzwerkerkennung und korrigierte Objektmetadaten",
-                "ru": "Безопасный опрос, кроссплатформенное обнаружение сети и исправленные метаданные объектов",
-                "pt": "Consulta mais segura, deteção de rede multiplataforma e metadados de objetos corrigidos",
-                "nl": "Veiliger pollen, platformonafhankelijke netwerkdetectie en gecorrigeerde objectmetadata",
-                "fr": "Interrogation plus sûre, détection réseau multiplateforme et métadonnées d'objets corrigées",
-                "it": "Polling più sicuro, rilevamento di rete multipiattaforma e metadati degli oggetti corretti",
-                "es": "Sondeo más seguro, detección de red multiplataforma y metadatos de objetos corregidos",
-                "pl": "Bezpieczniejsze odpytywanie, wieloplatformowe wykrywanie sieci i poprawione metadane obiektów",
-                "uk": "Безпечніше опитування, кросплатформне виявлення мережі та виправлені метадані об'єктів",
-                "zh-cn": "更安全的轮询、跨平台网络检测以及修正后的对象元数据"
-            },
-            "0.0.26": {
-                "en": "Modern React admin UI, complete translations, and reliable encrypted pairing storage",
-                "de": "Moderne React-Admin-UI, vollständige Übersetzungen und zuverlässige verschlüsselte Pairing-Speicherung",
-                "ru": "Современный интерфейс React Admin, полные переводы и надежное зашифрованное хранение данных сопряжения",
-                "pt": "Interface de administração React moderna, traduções completas e armazenamento de emparelhamento encriptado fiável",
-                "nl": "Moderne React-beheerinterface, volledige vertalingen en betrouwbare versleutelde opslag van koppelgegevens",
-                "fr": "Interface d'administration React moderne, traductions complètes et stockage chiffré fiable de l'appairage",
-                "it": "Interfaccia di amministrazione React moderna, traduzioni complete e archiviazione crittografata affidabile dell'associazione",
-                "es": "Interfaz de administración React moderna, traducciones completas y almacenamiento cifrado fiable del emparejamiento",
-                "pl": "Nowoczesny interfejs administracyjny React, kompletne tłumaczenia i niezawodne szyfrowane przechowywanie danych parowania",
-                "uk": "Сучасний інтерфейс React Admin, повні переклади та надійне зашифроване зберігання даних сполучення",
-                "zh-cn": "现代 React 管理界面、完整翻译以及可靠的加密配对数据存储"
-            },
-            "0.0.25": {
-                "en": "Maintenance release (repo cleanup, workflow, npm publish)",
-                "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
-                "ru": "Технический выпуск (очистка репозитория, рабочий процесс и публикация npm)",
-                "pt": "Versão de manutenção (limpeza do repositório, fluxo de trabalho e publicação npm)",
-                "nl": "Onderhoudsrelease (repository-opruiming, workflow en npm-publicatie)",
-                "fr": "Version de maintenance (nettoyage du dépôt, workflow et publication npm)",
-                "it": "Versione di manutenzione (pulizia del repository, workflow e pubblicazione npm)",
-                "es": "Versión de mantenimiento (limpieza del repositorio, flujo de trabajo y publicación en npm)",
-                "pl": "Wydanie konserwacyjne (porządki w repozytorium, workflow i publikacja npm)",
-                "uk": "Технічний випуск (очищення репозиторію, робочий процес і публікація npm)",
-                "zh-cn": "维护版本（仓库清理、工作流和 npm 发布）"
-            },
-            "0.0.24": {
-                "en": "Stability and UI fixes (pairing, power control, cleanup)",
-                "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
-                "ru": "Исправления стабильности и интерфейса (сопряжение, управление питанием и очистка)",
-                "pt": "Correções de estabilidade e interface (emparelhamento, controlo de energia e limpeza)",
-                "nl": "Stabiliteits- en interfaceverbeteringen (koppeling, voeding en opruiming)",
-                "fr": "Correctifs de stabilité et d’interface (appairage, alimentation et nettoyage)",
-                "it": "Correzioni di stabilità e interfaccia (associazione, alimentazione e pulizia)",
-                "es": "Correcciones de estabilidad e interfaz (emparejamiento, alimentación y limpieza)",
-                "pl": "Poprawki stabilności i interfejsu (parowanie, zasilanie i porządki)",
-                "uk": "Виправлення стабільності та інтерфейсу (сполучення, живлення й очищення)",
-                "zh-cn": "稳定性和界面修复（配对、电源控制和清理）"
-            }
-        },
-        "titleLang": {
-            "en": "Samsung TV",
-            "de": "Samsung TV",
-            "ru": "Samsung TV",
-            "pt": "Samsung TV",
-            "nl": "Samsung TV",
-            "fr": "Samsung TV",
-            "it": "Samsung TV",
-            "es": "Samsung TV",
-            "pl": "Samsung TV",
-            "uk": "Samsung TV",
-            "zh-cn": "Samsung TV"
-        },
-        "desc": {
-            "en": "Modern Samsung TV adapter with discovery and multi-device support",
-            "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
-            "ru": "Современный адаптер для телевизоров Samsung с автоматическим обнаружением и поддержкой нескольких устройств",
-            "pt": "Adaptador moderno para televisores Samsung com descoberta automática e suporte para vários dispositivos",
-            "nl": "Moderne adapter voor Samsung-tv's met automatische detectie en ondersteuning voor meerdere apparaten",
-            "fr": "Adaptateur moderne pour téléviseurs Samsung avec découverte automatique et prise en charge de plusieurs appareils",
-            "it": "Adattatore moderno per TV Samsung con rilevamento automatico e supporto multi-dispositivo",
-            "es": "Adaptador moderno para televisores Samsung con detección automática y compatibilidad con varios dispositivos",
-            "pl": "Nowoczesny adapter telewizorów Samsung z automatycznym wykrywaniem i obsługą wielu urządzeń",
-            "uk": "Сучасний адаптер для телевізорів Samsung з автоматичним виявленням і підтримкою кількох пристроїв",
-            "zh-cn": "支持自动发现和多设备管理的现代三星电视适配器"
-        },
-        "platform": "Javascript/Node.js",
-        "mode": "daemon",
-        "icon": "samsung.png",
-        "extIcon": "https://raw.githubusercontent.com/softwarecrash/ioBroker.samsungtv/main/admin/samsung.png",
-        "readme": "README.md",
-        "licenseInformation": {
-            "license": "MIT",
-            "type": "free"
-        },
-        "loglevel": "info",
-        "keywords": [
-            "samsung",
-            "samsung tv",
-            "tizen",
-            "ssdp",
-            "mdns",
-            "upnp"
-        ],
-        "enabled": false,
-        "nondeletable": false,
-        "type": "multimedia",
-        "singleton": true,
-        "authors": [
-            "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
-        ],
-        "connectionType": "local",
-        "dataSource": "poll",
-        "tier": 2,
-        "adminUI": {
-            "config": "json"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.11"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.6.20"
-            }
-        ],
-        "compact": true,
-        "supportedMessages": {
-            "deviceManager": true
-        }
+  "common": {
+    "name": "samsungtv",
+    "version": "0.0.28",
+    "news": {
+      "0.0.28": {
+        "en": "Native JSONConfig and Device Manager UI with responsive device discovery and pairing",
+        "de": "Native JSONConfig- und Device-Manager-Oberfläche mit responsiver Gerätesuche und Pairing",
+        "ru": "Нативный интерфейс JSONConfig и Device Manager с адаптивным обнаружением и сопряжением устройств",
+        "pt": "Interface nativa JSONConfig e Device Manager com deteção e emparelhamento responsivos",
+        "nl": "Native JSONConfig- en Device Manager-interface met responsieve apparaatdetectie en koppeling",
+        "fr": "Interface native JSONConfig et Device Manager avec détection et appairage adaptatifs",
+        "it": "Interfaccia nativa JSONConfig e Device Manager con rilevamento e associazione adattivi",
+        "es": "Interfaz nativa JSONConfig y Device Manager con detección y emparejamiento adaptables",
+        "pl": "Natywny interfejs JSONConfig i Device Manager z responsywnym wykrywaniem i parowaniem urządzeń",
+        "uk": "Нативний інтерфейс JSONConfig і Device Manager з адаптивним виявленням та спарюванням пристроїв",
+        "zh-cn": "原生 JSONConfig 和设备管理器界面，支持响应式设备发现与配对"
+      },
+      "0.0.27": {
+        "en": "Safer polling, cross-platform network detection, and corrected object metadata",
+        "de": "Sichereres Polling, plattformübergreifende Netzwerkerkennung und korrigierte Objektmetadaten",
+        "ru": "Безопасный опрос, кроссплатформенное обнаружение сети и исправленные метаданные объектов",
+        "pt": "Consulta mais segura, deteção de rede multiplataforma e metadados de objetos corrigidos",
+        "nl": "Veiliger pollen, platformonafhankelijke netwerkdetectie en gecorrigeerde objectmetadata",
+        "fr": "Interrogation plus sûre, détection réseau multiplateforme et métadonnées d'objets corrigées",
+        "it": "Polling più sicuro, rilevamento di rete multipiattaforma e metadati degli oggetti corretti",
+        "es": "Sondeo más seguro, detección de red multiplataforma y metadatos de objetos corregidos",
+        "pl": "Bezpieczniejsze odpytywanie, wieloplatformowe wykrywanie sieci i poprawione metadane obiektów",
+        "uk": "Безпечніше опитування, кросплатформне виявлення мережі та виправлені метадані об'єктів",
+        "zh-cn": "更安全的轮询、跨平台网络检测以及修正后的对象元数据"
+      },
+      "0.0.26": {
+        "en": "Modern React admin UI, complete translations, and reliable encrypted pairing storage",
+        "de": "Moderne React-Admin-UI, vollständige Übersetzungen und zuverlässige verschlüsselte Pairing-Speicherung",
+        "ru": "Современный интерфейс React Admin, полные переводы и надежное зашифрованное хранение данных сопряжения",
+        "pt": "Interface de administração React moderna, traduções completas e armazenamento de emparelhamento encriptado fiável",
+        "nl": "Moderne React-beheerinterface, volledige vertalingen en betrouwbare versleutelde opslag van koppelgegevens",
+        "fr": "Interface d'administration React moderne, traductions complètes et stockage chiffré fiable de l'appairage",
+        "it": "Interfaccia di amministrazione React moderna, traduzioni complete e archiviazione crittografata affidabile dell'associazione",
+        "es": "Interfaz de administración React moderna, traducciones completas y almacenamiento cifrado fiable del emparejamiento",
+        "pl": "Nowoczesny interfejs administracyjny React, kompletne tłumaczenia i niezawodne szyfrowane przechowywanie danych parowania",
+        "uk": "Сучасний інтерфейс React Admin, повні переклади та надійне зашифроване зберігання даних сполучення",
+        "zh-cn": "现代 React 管理界面、完整翻译以及可靠的加密配对数据存储"
+      },
+      "0.0.25": {
+        "en": "Maintenance release (repo cleanup, workflow, npm publish)",
+        "de": "Wartungs-Release (Repo-Cleanup, Workflow, npm Publish)",
+        "ru": "Технический выпуск (очистка репозитория, рабочий процесс и публикация npm)",
+        "pt": "Versão de manutenção (limpeza do repositório, fluxo de trabalho e publicação npm)",
+        "nl": "Onderhoudsrelease (repository-opruiming, workflow en npm-publicatie)",
+        "fr": "Version de maintenance (nettoyage du dépôt, workflow et publication npm)",
+        "it": "Versione di manutenzione (pulizia del repository, workflow e pubblicazione npm)",
+        "es": "Versión de mantenimiento (limpieza del repositorio, flujo de trabajo y publicación en npm)",
+        "pl": "Wydanie konserwacyjne (porządki w repozytorium, workflow i publikacja npm)",
+        "uk": "Технічний випуск (очищення репозиторію, робочий процес і публікація npm)",
+        "zh-cn": "维护版本（仓库清理、工作流和 npm 发布）"
+      },
+      "0.0.24": {
+        "en": "Stability and UI fixes (pairing, power control, cleanup)",
+        "de": "Stabilitäts- und UI-Verbesserungen (Pairing, Power, Cleanup)",
+        "ru": "Исправления стабильности и интерфейса (сопряжение, управление питанием и очистка)",
+        "pt": "Correções de estabilidade e interface (emparelhamento, controlo de energia e limpeza)",
+        "nl": "Stabiliteits- en interfaceverbeteringen (koppeling, voeding en opruiming)",
+        "fr": "Correctifs de stabilité et d’interface (appairage, alimentation et nettoyage)",
+        "it": "Correzioni di stabilità e interfaccia (associazione, alimentazione e pulizia)",
+        "es": "Correcciones de estabilidad e interfaz (emparejamiento, alimentación y limpieza)",
+        "pl": "Poprawki stabilności i interfejsu (parowanie, zasilanie i porządki)",
+        "uk": "Виправлення стабільності та інтерфейсу (сполучення, живлення й очищення)",
+        "zh-cn": "稳定性和界面修复（配对、电源控制和清理）"
+      }
     },
-    "encryptedNative": [
-        "tokens"
-    ],
-    "protectedNative": [
-        "tokens"
-    ],
-    "native": {
-        "schemaVersion": 1,
-        "devices": [],
-        "tokens": "",
-        "autoScan": true,
-        "autoScanInterval": 300,
-        "discoveryTimeout": 5,
-        "pollInterval": 30,
-        "enableSsdp": true,
-        "enableMdns": true,
-        "enableWol": true,
-        "mdnsServices": "_airplay._tcp,_samsung._tcp,_samsungtv._tcp,_samsungmsf._tcp,_samsungmsf2._tcp,_smartthings._tcp"
+    "titleLang": {
+      "en": "Samsung TV",
+      "de": "Samsung TV",
+      "ru": "Samsung TV",
+      "pt": "Samsung TV",
+      "nl": "Samsung TV",
+      "fr": "Samsung TV",
+      "it": "Samsung TV",
+      "es": "Samsung TV",
+      "pl": "Samsung TV",
+      "uk": "Samsung TV",
+      "zh-cn": "Samsung TV"
     },
-    "objects": []
+    "desc": {
+      "en": "Modern Samsung TV adapter with discovery and multi-device support",
+      "de": "Moderner Samsung-TV-Adapter mit Discovery und Multi-Device-Support",
+      "ru": "Современный адаптер для телевизоров Samsung с автоматическим обнаружением и поддержкой нескольких устройств",
+      "pt": "Adaptador moderno para televisores Samsung com descoberta automática e suporte para vários dispositivos",
+      "nl": "Moderne adapter voor Samsung-tv's met automatische detectie en ondersteuning voor meerdere apparaten",
+      "fr": "Adaptateur moderne pour téléviseurs Samsung avec découverte automatique et prise en charge de plusieurs appareils",
+      "it": "Adattatore moderno per TV Samsung con rilevamento automatico e supporto multi-dispositivo",
+      "es": "Adaptador moderno para televisores Samsung con detección automática y compatibilidad con varios dispositivos",
+      "pl": "Nowoczesny adapter telewizorów Samsung z automatycznym wykrywaniem i obsługą wielu urządzeń",
+      "uk": "Сучасний адаптер для телевізорів Samsung з автоматичним виявленням і підтримкою кількох пристроїв",
+      "zh-cn": "支持自动发现和多设备管理的现代三星电视适配器"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "samsung.png",
+    "extIcon": "https://raw.githubusercontent.com/softwarecrash/ioBroker.samsungtv/main/admin/samsung.png",
+    "readme": "README.md",
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
+    "loglevel": "info",
+    "keywords": [
+      "samsung",
+      "samsung tv",
+      "tizen",
+      "ssdp",
+      "mdns",
+      "upnp"
+    ],
+    "enabled": false,
+    "nondeletable": false,
+    "type": "multimedia",
+    "singleton": true,
+    "authors": [
+      "iobroker-community-adapters <iobroker-community-adapters@gmx.de>"
+    ],
+    "connectionType": "local",
+    "dataSource": "poll",
+    "tier": 2,
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.8.23"
+      }
+    ],
+    "compact": true,
+    "supportedMessages": {
+      "deviceManager": true
+    }
+  },
+  "encryptedNative": [
+    "tokens"
+  ],
+  "protectedNative": [
+    "tokens"
+  ],
+  "native": {
+    "schemaVersion": 1,
+    "devices": [],
+    "tokens": "",
+    "autoScan": true,
+    "autoScanInterval": 300,
+    "discoveryTimeout": 5,
+    "pollInterval": 30,
+    "enableSsdp": true,
+    "enableMdns": true,
+    "enableWol": true,
+    "mdnsServices": "_airplay._tcp,_samsung._tcp,_samsungtv._tcp,_samsungmsf._tcp,_samsungmsf2._tcp,_smartthings._tcp"
+  },
+  "objects": []
 }
