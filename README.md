@@ -83,6 +83,10 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Adapter is renamed to `samsungtv` to avoid conflicts with the old `samsung` adapter.
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
+
 ### 0.0.28
 - Replace the custom React configuration page with native ioBroker JSONConfig and Device Manager components.
 - Add responsive discovery, manual-add, details, pairing, rename, and remove workflows.
@@ -103,6 +107,8 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 - Migrate pairing data written by older adapter versions without exposing secrets.
 
 Older changes are documented in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ## How to test (short)
 1. Install the adapter and create an instance.
