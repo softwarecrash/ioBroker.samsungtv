@@ -17,6 +17,13 @@ const { XMLParser } = require('fast-xml-parser');
 const LegacyRemote = require('./lib/legacy/LegacyRemote');
 const SamsungHJ = require('./lib/hj/SamsungTv');
 const { getPingArguments, normalizeMac, parseArpTable, parseMacFromArpOutput } = require('./lib/networkTools');
+const {
+    MASTER_CHANNEL_XML,
+    RENDERING_CONTROL_URN,
+    buildSoapEnvelope,
+    parseUpnpErrorCode,
+    wellKnownRenderingControlUrl,
+} = require('./lib/upnpTools');
 const { boundedSeconds } = require('./lib/timerTools');
 const { SamsungTvDeviceManagement } = require('./lib/SamsungTvDeviceManagement');
 
@@ -33,6 +40,7 @@ const NO_TOKEN = '__no_token__';
 const MAX_POLL_INTERVAL_SECONDS = 3600;
 const MAX_SCAN_INTERVAL_SECONDS = 86400;
 const MAX_DISCOVERY_TIMEOUT_SECONDS = 60;
+const UPNP_REQUEST_TIMEOUT = 1500;
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const xmlParser = new XMLParser({ ignoreAttributes: false });
@@ -861,6 +869,8 @@ async function ensureDeviceObjects(device) {
     await ensureState(`${base}.control.channelDown`, 'Channel Down', 'boolean', 'button', false, false);
     await ensureState(`${base}.control.launchApp`, 'Launch App', 'string', 'text', '', false);
     await ensureState(`${base}.control.source`, 'Source', 'string', 'text', '', false);
+    await ensureState(`${base}.control.volume`, 'Volume', 'number', 'level.volume', 0, false);
+    await ensureState(`${base}.control.muted`, 'Muted', 'boolean', 'media.mute', false, false);
 }
 
 async function ensureState(id, name, type, role, def, readOnly) {
@@ -1004,6 +1014,12 @@ async function pollDevice(device) {
         await adapter.setStateAsync(`${device.name}.control.power`, status.power, true);
         await adapter.setStateAsync(`${device.name}.state.volume`, audio.volume, true);
         await adapter.setStateAsync(`${device.name}.state.muted`, audio.muted, true);
+        if (typeof audio.volume === 'number') {
+            await adapter.setStateAsync(`${device.name}.control.volume`, audio.volume, true);
+        }
+        if (typeof audio.muted === 'boolean') {
+            await adapter.setStateAsync(`${device.name}.control.muted`, audio.muted, true);
+        }
 
         if (status.online) {
             ensureUpnpEventSubscription(device).catch(e =>
@@ -1433,6 +1449,10 @@ async function handleControl(device, id, command, value) {
             return sendVolumeStep(device, id, 'KEY_VOLDOWN', -1, value);
         case 'mute':
             return sendMuteToggle(device, id, value);
+        case 'volume':
+            return setAbsoluteVolume(device, id, value);
+        case 'muted':
+            return setAbsoluteMute(device, id, value);
         case 'channelUp':
             return sendButton(device, id, 'KEY_CHUP', value);
         case 'channelDown':
@@ -1509,6 +1529,38 @@ async function sendMuteToggle(device, id, value) {
     // Keep optimistic mute result for a short period, because some TVs always report false via UPnP.
     device.mutedShadowUntil = Date.now() + 120000;
     await adapter.setStateAsync(`${device.name}.state.muted`, next, true);
+    scheduleDevicePoll(device, 1200);
+}
+
+async function setAbsoluteVolume(device, id, value) {
+    const target = Math.round(Number(value));
+    if (!Number.isFinite(target) || target < 0 || target > 100) {
+        adapter.log.warn(`Ignoring out of range volume "${value}" for ${device.name}`);
+        return;
+    }
+
+    await upnpSetRenderingControlValue(device, 'SetVolume', `      <DesiredVolume>${target}</DesiredVolume>`);
+
+    device.lastKnownVolume = target;
+    device.expectedVolume = target;
+    device.expectedVolumeUntil = Date.now() + 12000;
+    device.volumeTelemetryReliable = true;
+    await adapter.setStateAsync(id, target, true);
+    await adapter.setStateAsync(`${device.name}.state.volume`, target, true);
+    scheduleDevicePoll(device, 1200);
+}
+
+async function setAbsoluteMute(device, id, value) {
+    const target = !!value;
+
+    await upnpSetRenderingControlValue(device, 'SetMute', `      <DesiredMute>${target ? 1 : 0}</DesiredMute>`);
+
+    device.lastKnownMuted = target;
+    device.expectedMuted = target;
+    device.expectedMutedUntil = Date.now() + 12000;
+    device.mutedTelemetryReliable = true;
+    await adapter.setStateAsync(id, target, true);
+    await adapter.setStateAsync(`${device.name}.state.muted`, target, true);
     scheduleDevicePoll(device, 1200);
 }
 
@@ -2651,11 +2703,13 @@ async function ensureRenderingControlUrls(device) {
         location = await discoverSsdpLocationForIp(device.ip, 'ssdp:all', 1200);
     }
     if (!location) {
+        await useWellKnownRenderingControl(device);
         return;
     }
 
     const desc = await fetchUpnpDescription(location, 1500);
     if (!desc) {
+        await useWellKnownRenderingControl(device);
         return;
     }
     if (desc.renderingControlUrl) {
@@ -2679,6 +2733,60 @@ async function ensureRenderingControlUrls(device) {
             renderingControlEventUrl: device.renderingControlEventUrl,
         });
     }
+}
+
+/**
+ * Last resort when SSDP yields nothing: adopt the well-known endpoint if it answers.
+ *
+ * @param {object} device the device record
+ * @returns {Promise<boolean>} true when the endpoint was adopted
+ */
+async function useWellKnownRenderingControl(device) {
+    const controlUrl = await probeWellKnownRenderingControl(device);
+    if (!controlUrl) {
+        return false;
+    }
+
+    device.renderingControlUrl = controlUrl;
+    device.renderingControlEventUrl = deriveRenderingControlEventUrl(controlUrl);
+    updateConfigDeviceFromDiscovery(device, {
+        id: device.id,
+        ip: device.ip,
+        mac: device.mac,
+        renderingControlUrl: device.renderingControlUrl,
+        renderingControlEventUrl: device.renderingControlEventUrl,
+    });
+    return true;
+}
+
+/**
+ * Probes http://<ip>:9197/upnp/control/RenderingControl1 directly.
+ * The port is closed while the TV is in standby, so a miss is not conclusive and the
+ * caller retries on a later poll.
+ *
+ * @param {object} device the device record
+ * @returns {Promise<string>} the control URL when the TV answered, otherwise an empty string
+ */
+async function probeWellKnownRenderingControl(device) {
+    const controlUrl = wellKnownRenderingControlUrl(device.ip);
+    if (!controlUrl) {
+        return '';
+    }
+
+    const response = await upnpSoapRequest(controlUrl, 'GetVolume', MASTER_CHANNEL_XML);
+    if (!response) {
+        return '';
+    }
+    if (response.ok) {
+        adapter.log.debug(`RenderingControl found at the well-known endpoint for ${device.name}`);
+        return controlUrl;
+    }
+    if (parseUpnpErrorCode(response.text) === 401) {
+        adapter.log.warn(
+            `${device.name} refused RenderingControl with upnp:401. Volume control needs ioBroker on the same subnet as the TV.`,
+        );
+    }
+    return '';
 }
 
 async function getRenderingControlUrl(device) {
@@ -3068,43 +3176,64 @@ async function upnpUnsubscribe(eventUrl, sid) {
     });
 }
 
-async function upnpGetRenderingControlValue(controlUrl, action, tagName) {
-    const body = `<?xml version="1.0" encoding="utf-8"?>
-<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-  <s:Body>
-    <u:${action} xmlns:u="urn:schemas-upnp-org:service:RenderingControl:1">
-      <InstanceID>0</InstanceID>
-      <Channel>Master</Channel>
-    </u:${action}>
-  </s:Body>
-</s:Envelope>`;
-
+async function upnpSoapRequest(controlUrl, action, innerXml, timeoutMs = UPNP_REQUEST_TIMEOUT) {
+    const controller = new AbortController();
+    const timer = adapter.setTimeout(() => controller.abort(), timeoutMs);
     try {
-        const controller = new AbortController();
-        const timer = adapter.setTimeout(() => controller.abort(), 1500);
         const response = await fetch(controlUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/xml; charset="utf-8"',
-                SOAPACTION: `"urn:schemas-upnp-org:service:RenderingControl:1#${action}"`,
+                SOAPACTION: `"${RENDERING_CONTROL_URN}#${action}"`,
             },
-            body,
+            body: buildSoapEnvelope(action, innerXml),
             signal: controller.signal,
         });
-        adapter.clearTimeout(timer);
-        if (!response.ok) {
-            return null;
-        }
-        const text = await response.text();
-        const match = text.match(new RegExp(`<${tagName}>([^<]+)</${tagName}>`, 'i'));
-        if (!match || !match[1]) {
-            return null;
-        }
-        const parsed = parseInt(match[1], 10);
-        return Number.isNaN(parsed) ? null : parsed;
+        return { ok: response.ok, status: response.status, text: await response.text() };
     } catch (e) {
         return null;
+    } finally {
+        adapter.clearTimeout(timer);
     }
+}
+
+async function upnpGetRenderingControlValue(controlUrl, action, tagName) {
+    const response = await upnpSoapRequest(controlUrl, action, MASTER_CHANNEL_XML);
+    if (!response || !response.ok) {
+        return null;
+    }
+    const match = response.text.match(new RegExp(`<${tagName}>([^<]+)</${tagName}>`, 'i'));
+    if (!match || !match[1]) {
+        return null;
+    }
+    const parsed = parseInt(match[1], 10);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+async function upnpSetRenderingControlValue(device, action, valueXml) {
+    const controlUrl = await getRenderingControlUrl(device);
+    if (!controlUrl) {
+        throw new Error('No RenderingControl endpoint known for this TV');
+    }
+
+    const response = await upnpSoapRequest(controlUrl, action, `${MASTER_CHANNEL_XML}\n${valueXml}`, 2000);
+    if (!response) {
+        throw new Error(`${action} did not answer (the TV is probably in standby)`);
+    }
+    if (response.ok) {
+        return;
+    }
+
+    const code = parseUpnpErrorCode(response.text);
+    if (code === 401) {
+        throw new Error(
+            `${action} refused with upnp:401. Samsung TVs only accept RenderingControl from clients on their own subnet.`,
+        );
+    }
+    if (code === 402) {
+        throw new Error(`${action} rejected the value as out of range (upnp:402)`);
+    }
+    throw new Error(`${action} failed (HTTP ${response.status}${code === null ? '' : `, upnp:${code}`})`);
 }
 
 async function fetchWithTimeout(url, timeoutMs, options = {}) {

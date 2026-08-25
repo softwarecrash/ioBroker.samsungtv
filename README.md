@@ -14,6 +14,7 @@ German documentation is available at `doc/de/README.md`.
 - Tizen WebSocket API (8001/8002) + pairing/token
 - H/J series PIN pairing (best effort)
 - Wake-on-LAN (optional)
+- Absolute volume and mute over UPnP RenderingControl
 - Stable device matching via ID/UUID/MAC, also across renames
 - No token output in logs or UI (tokens are stored encrypted)
 
@@ -55,11 +56,25 @@ Per TV:
   - `power`, `volume`, `muted`
 - `samsungtv.0.<tvname>.control.*`
   - `power`, `wol`, `key`, `volumeUp`, `volumeDown`, `mute`, `channelUp`, `channelDown`, `launchApp`, `source`
+  - `volume`, `muted`
 
 ### Control (short)
 - `control.key`: any remote key (e.g. `KEY_POWER`, `KEY_VOLUP`)
 - `control.launchApp`: app ID (Tizen) from the TV app list
 - `control.source`: source as key (`KEY_HDMI`, `KEY_SOURCE`) or short form (`HDMI`)
+- `control.volume`: absolute volume from 0 to 100
+- `control.muted`: mute on or off, as opposed to `control.mute`, which toggles
+
+### Volume
+`control.volume` and `control.muted` use the TV's UPnP RenderingControl service, so they
+set an exact level instead of stepping. Three things about that service are worth knowing:
+
+- It only answers while the TV is on, and it starts answering several seconds after the TV
+  first reports itself as on. The port can accept a TCP connection without the service
+  behind it responding, so reachability is decided by an actual `GetVolume` call.
+- It only answers clients on the TV's own subnet. A routed client gets `upnp:401` for the
+  identical request that succeeds locally, which is logged as a warning.
+- Hospitality mode blocks it in a way that looks the same, so rule that out first.
 
 ### Key codes (control.key)
 `control.key` accepts either **Samsung key codes** (`KEY_*`) or **friendly short forms**:
@@ -85,6 +100,8 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Add absolute volume and mute (`control.volume`, `control.muted`) over UPnP RenderingControl.
+- Fall back to the well-known RenderingControl endpoint when SSDP returns nothing.
 - (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
 
 ### 0.0.28

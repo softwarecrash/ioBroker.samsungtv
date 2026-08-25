@@ -12,6 +12,7 @@ Dies ist ein unabhängiger Community-Adapter für Fernseher von [Samsung Electro
 - Tizen WebSocket API (8001/8002) + Pairing/Token
 - H/J-Serie PIN-Pairing (best effort)
 - Wake-on-LAN (optional)
+- Absolute Lautstärke und Mute über UPnP RenderingControl
 - Stabiler Geräteabgleich via ID/UUID/MAC, auch bei Namensänderungen
 - Keine Token-Ausgabe in Logs oder UI (Token verschlüsselt gespeichert)
 
@@ -53,11 +54,26 @@ Pro TV:
   - `power`, `volume`, `muted`
 - `samsungtv.0.<tvname>.control.*`
   - `power`, `wol`, `key`, `volumeUp`, `volumeDown`, `mute`, `channelUp`, `channelDown`, `launchApp`, `source`
+  - `volume`, `muted`
 
 ### Steuerung (Kurz)
 - `control.key`: beliebiger Remote-Key (z.B. `KEY_POWER`, `KEY_VOLUP`)
 - `control.launchApp`: App-ID (Tizen) aus der TV-App-Liste
 - `control.source`: Quelle als Key (`KEY_HDMI`, `KEY_SOURCE`) oder Kurzform (`HDMI`)
+- `control.volume`: absolute Lautstärke von 0 bis 100
+- `control.muted`: Mute ein oder aus, im Gegensatz zu `control.mute`, das umschaltet
+
+### Lautstärke
+`control.volume` und `control.muted` nutzen den UPnP-RenderingControl-Dienst des TVs und
+setzen damit einen exakten Wert, statt schrittweise zu regeln. Drei Eigenschaften dieses
+Dienstes sind wichtig:
+
+- Er antwortet nur, solange der TV eingeschaltet ist, und beginnt einige Sekunden nachdem
+  der TV sich als eingeschaltet meldet. Der Port kann eine TCP-Verbindung annehmen, ohne
+  dass der Dienst antwortet; maßgeblich ist daher ein echter `GetVolume`-Aufruf.
+- Er antwortet nur Clients im eigenen Subnetz des TVs. Ein gerouteter Client erhält
+  `upnp:401` für dieselbe Anfrage, die lokal funktioniert; das wird als Warnung geloggt.
+- Der Hotelmodus blockiert ihn auf dieselbe Weise und sollte zuerst ausgeschlossen werden.
 
 ### Key-Codes (control.key)
 `control.key` akzeptiert entweder **Samsung Key-Codes** (`KEY_*`) oder **freundliche Kurzformen**:
