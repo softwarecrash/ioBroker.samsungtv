@@ -72,9 +72,9 @@ set an exact level instead of stepping. Three things about that service are wort
 - It only answers while the TV is on, and it starts answering several seconds after the TV
   first reports itself as on. The port can accept a TCP connection without the service
   behind it responding, so reachability is decided by an actual `GetVolume` call.
-- It only answers clients on the TV's own subnet. A routed client gets `upnp:401` for the
-  identical request that succeeds locally, which is logged as a warning.
-- Hospitality mode blocks it in a way that looks the same, so rule that out first.
+- UPnP defines `upnp:401` as `Invalid Action` and `upnp:402` as `Invalid Args`. Some Samsung
+  TVs also return `upnp:401` when network or hospitality-mode restrictions block control,
+  so the adapter reports those restrictions as possible causes rather than a certainty.
 
 ### Key codes (control.key)
 `control.key` accepts either **Samsung key codes** (`KEY_*`) or **friendly short forms**:

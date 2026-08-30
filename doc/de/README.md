@@ -71,9 +71,9 @@ Dienstes sind wichtig:
 - Er antwortet nur, solange der TV eingeschaltet ist, und beginnt einige Sekunden nachdem
   der TV sich als eingeschaltet meldet. Der Port kann eine TCP-Verbindung annehmen, ohne
   dass der Dienst antwortet; maßgeblich ist daher ein echter `GetVolume`-Aufruf.
-- Er antwortet nur Clients im eigenen Subnetz des TVs. Ein gerouteter Client erhält
-  `upnp:401` für dieselbe Anfrage, die lokal funktioniert; das wird als Warnung geloggt.
-- Der Hotelmodus blockiert ihn auf dieselbe Weise und sollte zuerst ausgeschlossen werden.
+- UPnP definiert `upnp:401` als `Invalid Action` und `upnp:402` als `Invalid Args`. Einige
+  Samsung-TVs liefern `upnp:401` auch bei Netzwerk- oder Hotelmodus-Einschränkungen. Der
+  Adapter nennt diese Einschränkungen daher nur als mögliche und nicht als sichere Ursache.
 
 ### Key-Codes (control.key)
 `control.key` akzeptiert entweder **Samsung Key-Codes** (`KEY_*`) oder **freundliche Kurzformen**:

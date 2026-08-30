@@ -19,9 +19,14 @@ const SamsungHJ = require('./lib/hj/SamsungTv');
 const { getPingArguments, normalizeMac, parseArpTable, parseMacFromArpOutput } = require('./lib/networkTools');
 const {
     MASTER_CHANNEL_XML,
+    RENDERING_CONTROL_LOOKUP_TTL,
     RENDERING_CONTROL_URN,
     buildSoapEnvelope,
+    normalizeAbsoluteMute,
+    normalizeAbsoluteVolume,
     parseUpnpErrorCode,
+    renderingControlRetryTimestamp,
+    upnpErrorDescription,
     wellKnownRenderingControlUrl,
 } = require('./lib/upnpTools');
 const { boundedSeconds } = require('./lib/timerTools');
@@ -41,6 +46,7 @@ const MAX_POLL_INTERVAL_SECONDS = 3600;
 const MAX_SCAN_INTERVAL_SECONDS = 86400;
 const MAX_DISCOVERY_TIMEOUT_SECONDS = 60;
 const UPNP_REQUEST_TIMEOUT = 1500;
+const DEVICE_ERROR_QUALITY = 0x44;
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const xmlParser = new XMLParser({ ignoreAttributes: false });
@@ -1533,13 +1539,18 @@ async function sendMuteToggle(device, id, value) {
 }
 
 async function setAbsoluteVolume(device, id, value) {
-    const target = Math.round(Number(value));
-    if (!Number.isFinite(target) || target < 0 || target > 100) {
+    const target = normalizeAbsoluteVolume(value);
+    if (target === null) {
         adapter.log.warn(`Ignoring out of range volume "${value}" for ${device.name}`);
         return;
     }
 
-    await upnpSetRenderingControlValue(device, 'SetVolume', `      <DesiredVolume>${target}</DesiredVolume>`);
+    try {
+        await upnpSetRenderingControlValue(device, 'SetVolume', `      <DesiredVolume>${target}</DesiredVolume>`);
+    } catch (e) {
+        await adapter.setStateAsync(id, { val: target, ack: true, q: DEVICE_ERROR_QUALITY });
+        throw e;
+    }
 
     device.lastKnownVolume = target;
     device.expectedVolume = target;
@@ -1551,9 +1562,18 @@ async function setAbsoluteVolume(device, id, value) {
 }
 
 async function setAbsoluteMute(device, id, value) {
-    const target = !!value;
+    const target = normalizeAbsoluteMute(value);
+    if (target === null) {
+        adapter.log.warn(`Ignoring invalid mute value for ${device.name}`);
+        return;
+    }
 
-    await upnpSetRenderingControlValue(device, 'SetMute', `      <DesiredMute>${target ? 1 : 0}</DesiredMute>`);
+    try {
+        await upnpSetRenderingControlValue(device, 'SetMute', `      <DesiredMute>${target ? 1 : 0}</DesiredMute>`);
+    } catch (e) {
+        await adapter.setStateAsync(id, { val: target, ack: true, q: DEVICE_ERROR_QUALITY });
+        throw e;
+    }
 
     device.lastKnownMuted = target;
     device.expectedMuted = target;
@@ -2690,7 +2710,7 @@ async function ensureRenderingControlUrls(device) {
     }
 
     const now = Date.now();
-    if (device._renderingControlLookupTs && now - device._renderingControlLookupTs < 300000) {
+    if (device._renderingControlLookupTs && now - device._renderingControlLookupTs < RENDERING_CONTROL_LOOKUP_TTL) {
         return;
     }
     device._renderingControlLookupTs = now;
@@ -2703,13 +2723,13 @@ async function ensureRenderingControlUrls(device) {
         location = await discoverSsdpLocationForIp(device.ip, 'ssdp:all', 1200);
     }
     if (!location) {
-        await useWellKnownRenderingControl(device);
+        await useWellKnownRenderingControlWithRetry(device);
         return;
     }
 
     const desc = await fetchUpnpDescription(location, 1500);
     if (!desc) {
-        await useWellKnownRenderingControl(device);
+        await useWellKnownRenderingControlWithRetry(device);
         return;
     }
     if (desc.renderingControlUrl) {
@@ -2733,6 +2753,17 @@ async function ensureRenderingControlUrls(device) {
             renderingControlEventUrl: device.renderingControlEventUrl,
         });
     }
+    if (!device.renderingControlUrl) {
+        await useWellKnownRenderingControlWithRetry(device);
+    }
+}
+
+async function useWellKnownRenderingControlWithRetry(device) {
+    const found = await useWellKnownRenderingControl(device);
+    if (!found) {
+        device._renderingControlLookupTs = renderingControlRetryTimestamp();
+    }
+    return found;
 }
 
 /**
@@ -2782,8 +2813,9 @@ async function probeWellKnownRenderingControl(device) {
         return controlUrl;
     }
     if (parseUpnpErrorCode(response.text) === 401) {
-        adapter.log.warn(
-            `${device.name} refused RenderingControl with upnp:401. Volume control needs ioBroker on the same subnet as the TV.`,
+        adapter.log.debug(
+            `${device.name} refused the RenderingControl probe with upnp:401 Invalid Action. ` +
+                'The endpoint may not support this action; network or hospitality restrictions are also possible.',
         );
     }
     return '';
@@ -3227,13 +3259,16 @@ async function upnpSetRenderingControlValue(device, action, valueXml) {
     const code = parseUpnpErrorCode(response.text);
     if (code === 401) {
         throw new Error(
-            `${action} refused with upnp:401. Samsung TVs only accept RenderingControl from clients on their own subnet.`,
+            `${action} failed (upnp:401 ${upnpErrorDescription(code)}). ` +
+                'The endpoint may not support this action; network or hospitality restrictions are also possible.',
         );
     }
     if (code === 402) {
-        throw new Error(`${action} rejected the value as out of range (upnp:402)`);
+        throw new Error(`${action} rejected the arguments (upnp:402 ${upnpErrorDescription(code)})`);
     }
-    throw new Error(`${action} failed (HTTP ${response.status}${code === null ? '' : `, upnp:${code}`})`);
+    const description = upnpErrorDescription(code);
+    const errorDetails = code === null ? '' : `, upnp:${code}${description ? ` ${description}` : ''}`;
+    throw new Error(`${action} failed (HTTP ${response.status}${errorDetails})`);
 }
 
 async function fetchWithTimeout(url, timeoutMs, options = {}) {
