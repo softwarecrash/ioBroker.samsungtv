@@ -43,7 +43,7 @@
         "@iobroker/adapter-core": "^3.4.3",
         "@iobroker/dm-utils": "^3.2.0",
         "bonjour-service": "^1.4.4",
-        "fast-xml-parser": "^5.10.1",
+        "fast-xml-parser": "^5.11.1",
         "wake_on_lan": "^1.0.0",
         "ws": "^8.21.3"
     },
