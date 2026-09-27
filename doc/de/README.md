@@ -37,6 +37,7 @@ Aktionen im Device Manager werden sofort angewendet und gespeichert. Der normale
 ### Pairing
 - **Tizen**: Bei **Pairing starten** erscheint ein Hinweis am TV (meist **Zulassen/Abbrechen**, kein PIN). Am TV bestätigen.
 - **H/J-Serie**: **Pairing starten** klicken → TV zeigt PIN → PIN im nativen Dialog eingeben.
+- **Tizen, Token bereits bekannt**: **Token setzen** klicken und den Token einfügen, statt den Hinweis am TV zu bestätigen. Der Token wird wie ein gepairter verschlüsselt gespeichert.
 
 Die dynamische Geräte-Registry liegt im persistenten ioBroker-Instanzdatenverzeichnis. Dadurch können Device-Manager-Aktionen nicht von einem bereits geöffneten Einstellungsformular überschrieben werden. Token/Identitäten werden dort mit dem ioBroker-Systemschlüssel verschlüsselt und die Datei erhält ausschließlich Besitzerrechte. Vorhandene Werte aus `native.devices` und dem verschlüsselten `native.tokens` werden beim ersten Start automatisch importiert.
 

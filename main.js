@@ -517,7 +517,10 @@ async function removeManagedDevice(id) {
 }
 
 async function pairManagedTizen(device) {
-    const token = await pairTizen(device);
+    await storeManagedTizenToken(device, await pairTizen(device));
+}
+
+async function storeManagedTizenToken(device, token) {
     await setInMemoryToken(device.id, token);
     if (device.api !== 'tizen') {
         device.api = 'tizen';
@@ -552,6 +555,7 @@ function createDeviceManagementService() {
         requestPin: hjRequestPin,
         confirmPin: confirmManagedHjPin,
         pairTizen: pairManagedTizen,
+        setTizenToken: storeManagedTizenToken,
     };
 }
 

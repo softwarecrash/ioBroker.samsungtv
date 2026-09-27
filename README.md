@@ -39,6 +39,7 @@ Device Manager actions are applied and persisted immediately. The regular ioBrok
 ### Pairing
 - **Tizen**: when you click **Pair**, the TV shows a prompt (usually **Allow/Cancel**, no PIN). Confirm it on the TV.
 - **H/J series**: click **Pair** → TV shows PIN → enter PIN in the native dialog.
+- **Tizen, token already known**: click **Set token** and paste the token instead of confirming the prompt on the TV. The token is stored encrypted like a paired one.
 
 The dynamic device registry is stored in ioBroker's persistent instance data directory so Device Manager actions cannot be overwritten by an already open settings form. Tokens/identities in that registry are encrypted with the ioBroker system secret and the file is written with owner-only permissions. Existing `native.devices` and encrypted `native.tokens` values are imported automatically on the first start.
 
@@ -100,6 +101,7 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Add a **Set token** Device Manager action to enter a known Tizen token without pairing on the TV.
 - Add absolute volume and mute (`control.volume`, `control.muted`) over UPnP RenderingControl.
 - Fall back to the well-known RenderingControl endpoint when SSDP returns nothing.
 - (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
