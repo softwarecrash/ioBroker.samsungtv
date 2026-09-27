@@ -5,11 +5,13 @@
     "Add discovered TV": "Deze tv aan de adapter toevoegen",
     "Add failed": "Tv kon niet worden toegevoegd",
     "Added TVs": "TV's toegevoegd",
+    "Apply default volume": "Standaardvolume instellen bij het inschakelen",
     "Auto scan": "Automatische scan",
     "Auto scan interval": "Autoscan-interval (seconden)",
     "Automatic": "Automatisch",
     "Cancel": "Annuleren",
     "Configuration": "Configuratie",
+    "Default volume": "Standaardvolume",
     "Device ID": "Apparaat-ID/UUID",
     "Device management": "Tv-beheer",
     "Device management description": "Zoek, voeg toe, koppel, hernoem en verwijder tv’s hier. Apparaatwijzigingen worden direct toegepast.",
@@ -47,6 +49,7 @@
     "Pairing failed": "Koppelen is mislukt",
     "Pairing in progress": "Bezig met koppelen...",
     "Pairing status": "Koppelingsstatus",
+    "Percent": "procent",
     "Poll interval": "Poll-interval (seconden)",
     "Port": "Haven",
     "Protocol": "Protocol",
@@ -66,5 +69,6 @@
     "TVs found": "%s tv’s gevonden.",
     "Unknown": "Onbekend",
     "Unknown device": "Onbekend apparaat",
+    "Volume": "Volume",
     "mDNS services": "mDNS-diensten"
 }

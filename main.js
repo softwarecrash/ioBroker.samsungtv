@@ -46,6 +46,10 @@ const MAX_POLL_INTERVAL_SECONDS = 3600;
 const MAX_SCAN_INTERVAL_SECONDS = 86400;
 const MAX_DISCOVERY_TIMEOUT_SECONDS = 60;
 const UPNP_REQUEST_TIMEOUT = 1500;
+// Port 9197 starts listening a few seconds after the TV reports "on", so the default
+// volume has to be retried instead of applied once.
+const DEFAULT_VOLUME_RETRIES = 30;
+const DEFAULT_VOLUME_RETRY_DELAY = 1000;
 const DEVICE_ERROR_QUALITY = 0x44;
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
@@ -1027,6 +1031,16 @@ async function pollDevice(device) {
             await adapter.setStateAsync(`${device.name}.control.muted`, audio.muted, true);
         }
 
+        const previousPower = device.lastPowerState;
+        device.lastPowerState = status.power;
+        if (status.power && previousPower === false) {
+            // 9197 does not answer before the TV is really up again.
+            delete device._renderingControlLookupTs;
+            applyDefaultVolume(device).catch(e =>
+                adapter.log.debug(`Default volume failed for ${device.name}: ${e.message}`),
+            );
+        }
+
         if (status.online) {
             ensureUpnpEventSubscription(device).catch(e =>
                 adapter.log.debug(`UPnP subscribe failed for ${device.name}: ${e.message}`),
@@ -1582,6 +1596,49 @@ async function setAbsoluteMute(device, id, value) {
     await adapter.setStateAsync(id, target, true);
     await adapter.setStateAsync(`${device.name}.state.muted`, target, true);
     scheduleDevicePoll(device, 1200);
+}
+
+/**
+ * Applies the configured default volume after the TV has powered on.
+ * RenderingControl lags several seconds behind the reported power state, so this polls
+ * GetVolume until the endpoint answers before writing.
+ *
+ * @param {object} device the device record
+ */
+async function applyDefaultVolume(device) {
+    if (!adapter.config.applyDefaultVolume) {
+        return;
+    }
+    const target = Math.round(Number(adapter.config.defaultVolume));
+    if (!Number.isFinite(target) || target < 0 || target > 100) {
+        adapter.log.warn(
+            `Configured default volume "${adapter.config.defaultVolume}" is not a value between 0 and 100`,
+        );
+        return;
+    }
+
+    for (let attempt = 0; attempt < DEFAULT_VOLUME_RETRIES; attempt++) {
+        if (isUnloading) {
+            return;
+        }
+        const controlUrl = await getRenderingControlUrl(device);
+        if (controlUrl && (await upnpGetRenderingControlValue(controlUrl, 'GetVolume', 'CurrentVolume')) !== null) {
+            try {
+                await setAbsoluteVolume(device, `${device.name}.control.volume`, target);
+                adapter.log.info(`Applied default volume ${target} to ${device.name}`);
+            } catch (e) {
+                adapter.log.warn(`Could not apply default volume to ${device.name}: ${e.message}`);
+            }
+            return;
+        }
+        await sleep(DEFAULT_VOLUME_RETRY_DELAY);
+    }
+
+    adapter.log.warn(`RenderingControl did not come up on ${device.name}; default volume was not applied`);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => adapter.setTimeout(resolve, ms));
 }
 
 function isTruthyValue(val) {

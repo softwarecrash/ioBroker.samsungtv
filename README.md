@@ -24,6 +24,7 @@ The adapter uses ioBroker's native JSONConfig and Device Manager components. The
 The **Configuration** tab contains:
 - **Auto scan** and **Auto scan interval** for periodic discovery
 - **Poll interval** for power, volume, and mute updates
+- **Set a default volume when the TV switches on** and the **Default volume** to use
 - **Discovery timeout**
 - **Enable SSDP** / **Enable mDNS** discovery sources
 - **Enable Wake-on-LAN**
@@ -100,6 +101,7 @@ Note: not every TV supports every key. Some keys only work when a menu/focus is 
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Add an optional default volume that is applied when a TV switches on.
 - Add absolute volume and mute (`control.volume`, `control.muted`) over UPnP RenderingControl.
 - Fall back to the well-known RenderingControl endpoint when SSDP returns nothing.
 - (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.

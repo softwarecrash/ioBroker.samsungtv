@@ -5,11 +5,13 @@
     "Add discovered TV": "将此电视添加到适配器",
     "Add failed": "无法添加电视",
     "Added TVs": "添加了电视",
+    "Apply default volume": "开机时设置默认音量",
     "Auto scan": "自动扫描",
     "Auto scan interval": "自动扫描间隔（秒）",
     "Automatic": "自动",
     "Cancel": "取消",
     "Configuration": "配置",
+    "Default volume": "默认音量",
     "Device ID": "设备 ID / UUID",
     "Device management": "电视管理",
     "Device management description": "在此搜索、添加、配对、重命名和删除电视。设备更改会立即应用。",
@@ -47,6 +49,7 @@
     "Pairing failed": "配对失败",
     "Pairing in progress": "正在配对...",
     "Pairing status": "配对状态",
+    "Percent": "百分比",
     "Poll interval": "轮询间隔（秒）",
     "Port": "港口",
     "Protocol": "协议",
@@ -66,5 +69,6 @@
     "TVs found": "找到 %s 台电视。",
     "Unknown": "未知",
     "Unknown device": "未知设备",
+    "Volume": "音量",
     "mDNS services": "mDNS 服务"
 }
