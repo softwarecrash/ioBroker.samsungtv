@@ -5,11 +5,13 @@
     "Add discovered TV": "Add this TV to the adapter",
     "Add failed": "Could not add TV",
     "Added TVs": "Added TVs",
+    "Apply default volume": "Set a default volume when the TV switches on",
     "Auto scan": "Auto scan",
     "Auto scan interval": "Auto scan interval (seconds)",
     "Automatic": "Automatic",
     "Cancel": "Cancel",
     "Configuration": "Configuration",
+    "Default volume": "Default volume",
     "Device ID": "Device ID / UUID",
     "Device management": "TV management",
     "Device management description": "Scan, add, pair, rename, and remove TVs here. Device changes are applied immediately.",
@@ -47,6 +49,7 @@
     "Pairing failed": "Pairing failed",
     "Pairing in progress": "Pairing in progress...",
     "Pairing status": "Pairing status",
+    "Percent": "percent",
     "Poll interval": "Poll interval (seconds)",
     "Port": "Port",
     "Protocol": "Protocol",
@@ -66,5 +69,6 @@
     "TVs found": "%s TVs found.",
     "Unknown": "Unknown",
     "Unknown device": "Unknown device",
+    "Volume": "Volume",
     "mDNS services": "mDNS services"
 }

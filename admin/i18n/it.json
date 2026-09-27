@@ -5,11 +5,13 @@
     "Add discovered TV": "Aggiungi questa TV all’adattatore",
     "Add failed": "Impossibile aggiungere la TV",
     "Added TVs": "Aggiunti televisori",
+    "Apply default volume": "Imposta un volume predefinito all'accensione",
     "Auto scan": "Scansione automatica",
     "Auto scan interval": "Intervallo di scansione automatica (secondi)",
     "Automatic": "Automatico",
     "Cancel": "Cancellare",
     "Configuration": "Configurazione",
+    "Default volume": "Volume predefinito",
     "Device ID": "ID dispositivo/UUID",
     "Device management": "Gestione TV",
     "Device management description": "Cerca, aggiungi, associa, rinomina e rimuovi le TV qui. Le modifiche ai dispositivi vengono applicate immediatamente.",
@@ -47,6 +49,7 @@
     "Pairing failed": "Associazione non riuscita",
     "Pairing in progress": "Associazione in corso...",
     "Pairing status": "Stato associazione",
+    "Percent": "percento",
     "Poll interval": "Intervallo di polling (secondi)",
     "Port": "Porta",
     "Protocol": "Protocollo",
@@ -66,5 +69,6 @@
     "TVs found": "%s TV rilevate.",
     "Unknown": "Sconosciuto",
     "Unknown device": "Dispositivo sconosciuto",
+    "Volume": "Volume",
     "mDNS services": "Servizi mDNS"
 }

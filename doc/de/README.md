@@ -22,6 +22,7 @@ Der Adapter verwendet die nativen ioBroker-Komponenten JSONConfig und Device Man
 Der Tab **Konfiguration** enthält:
 - **Automatischer Scan** und **Auto-Scan-Intervall** für die periodische Suche
 - **Abfrageintervall** für Power-, Lautstärke- und Mute-Status
+- **Standardlautstärke beim Einschalten setzen** und die zu verwendende **Standardlautstärke**
 - **Discovery-Timeout**
 - **SSDP aktivieren** / **mDNS aktivieren** als Discovery-Quellen
 - **Wake-on-LAN aktivieren**

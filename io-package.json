@@ -155,6 +155,8 @@
     "autoScanInterval": 300,
     "discoveryTimeout": 5,
     "pollInterval": 30,
+    "applyDefaultVolume": false,
+    "defaultVolume": 20,
     "enableSsdp": true,
     "enableMdns": true,
     "enableWol": true,
