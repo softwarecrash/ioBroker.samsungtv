@@ -137,6 +137,6 @@ Older changes are documented in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 7. Rename the TV in Device Manager: the object tree should migrate cleanly.
 
 ## License
-MIT
+[MIT License](LICENSE)
 
 Copyright (c) 2026 softwarecrash
