@@ -9,6 +9,7 @@ Dies ist ein unabhängiger Community-Adapter für Fernseher von [Samsung Electro
 ## Features
 - Automatische Discovery via SSDP/UPnP und optional mDNS
 - Mehrere TVs in einer Instanz: `samsungtv.0.<tvname>.*`
+- Mehrere Adapterinstanzen zur Trennung von TVs nach Standort oder Zuständigkeit
 - Tizen WebSocket API (8001/8002) + Pairing/Token
 - H/J-Serie PIN-Pairing (best effort)
 - Wake-on-LAN (optional)
@@ -40,6 +41,8 @@ Aktionen im Device Manager werden sofort angewendet und gespeichert. Der normale
 - **Tizen, Token bereits bekannt**: **Token setzen** klicken und den Token einfügen, statt den Hinweis am TV zu bestätigen. Der Adapter prüft den Token am TV, bevor er ihn verschlüsselt speichert.
 
 Die dynamische Geräte-Registry liegt im persistenten ioBroker-Instanzdatenverzeichnis. Dadurch können Device-Manager-Aktionen nicht von einem bereits geöffneten Einstellungsformular überschrieben werden. Token/Identitäten werden dort mit dem ioBroker-Systemschlüssel verschlüsselt und die Datei erhält ausschließlich Besitzerrechte. Vorhandene Werte aus `native.devices` und dem verschlüsselten `native.tokens` werden beim ersten Start automatisch importiert.
+
+Mehrere Adapterinstanzen werden unterstützt. Jede Instanz besitzt eine eigene Konfiguration, einen eigenen Objekt-Namespace, eine eigene Geräteregistry, eigene Pairing-Geheimnisse, Timer und Netzwerk-Listener. Derselbe TV sollte nicht mehreren Instanzen hinzugefügt werden, da sich paralleles Polling und gleichzeitige Befehle gegenseitig stören können. Eine Altkonfiguration aus `samsung.0` wird nur von `samsungtv.0` importiert.
 
 Falls beim Pairing **kein Hinweis** erscheint:
 - TV: **Geräte-Verbindungsmanager / Device Connection Manager** → **Zugriffsbenachrichtigung** aktivieren.

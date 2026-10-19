@@ -32,6 +32,7 @@ const {
 const { boundedSeconds } = require('./lib/timerTools');
 const { evaluateTizenTokenMessage } = require('./lib/tizenTokenTools');
 const { SamsungTvDeviceManagement } = require('./lib/SamsungTvDeviceManagement');
+const { shouldMigrateLegacySamsung } = require('./lib/legacyMigrationTools');
 
 const HJ_DEVICE_CONFIG = {
     appId: '721b6fce-4ee6-48ba-8045-955a539edadb',
@@ -201,6 +202,9 @@ async function loadTokensFromConfig() {
 
 async function migrateLegacyConfigFromSamsung() {
     if (adapter.name === 'samsung') {
+        return false;
+    }
+    if (!shouldMigrateLegacySamsung(adapter.instance)) {
         return false;
     }
     if (adapter.config && adapter.config.migratedFromSamsung) {
