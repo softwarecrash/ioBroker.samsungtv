@@ -2,7 +2,7 @@
     "name": "iobroker.samsungtv",
     "version": "0.0.28",
     "description": "Modern Samsung TV adapter with discovery and multi-device support",
-    "author": "softwarecrash <44615614+softwarecrash@users.noreply.github.com>",
+    "author": "softwarecrash <dev/null@softwarecrash.de>",
     "contributors": [],
     "homepage": "https://github.com/softwarecrash/ioBroker.samsungtv",
     "license": "MIT",

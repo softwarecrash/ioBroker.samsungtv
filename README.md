@@ -144,4 +144,4 @@ Older changes are documented in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 ## License
 [MIT License](LICENSE)
 
-Copyright (c) 2026 softwarecrash <44615614+softwarecrash@users.noreply.github.com>
+Copyright (c) 2026 softwarecrash <dev/null@softwarecrash.de>
