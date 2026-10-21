@@ -49,6 +49,8 @@
     "Pairing status": "配对状态",
     "Poll interval": "轮询间隔（秒）",
     "Port": "港口",
+    "Power state after a power command": "电源命令后的电源状态",
+    "Power state mode help": "立即显示：发送命令后 state.power 立即改变。等待电视确认：仅在电视报告新状态后才改变，在此之前 control.power 保持未确认。",
     "Protocol": "协议",
     "Remove": "消除",
     "Remove confirmation": "是否删除此电视、其凭据和完整对象树？",
@@ -63,6 +65,7 @@
     "Set token": "设置令牌",
     "Set token failed": "设置令牌失败",
     "Settings": "设置",
+    "Show immediately": "立即显示",
     "Stable ID": "稳定 ID",
     "Stable identity note": "MAC 地址用于跟随 DHCP 地址更改。友好名称定义对象路径。",
     "TVs found": "找到 %s 台电视。",
@@ -73,5 +76,6 @@
     "Token verification unavailable": "无法连接电视以验证令牌。",
     "Unknown": "未知",
     "Unknown device": "未知设备",
+    "Wait for the TV": "等待电视确认",
     "mDNS services": "mDNS 服务"
 }

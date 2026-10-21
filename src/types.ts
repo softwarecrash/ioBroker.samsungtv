@@ -27,6 +27,7 @@ export interface AdapterNativeConfig {
     autoScanInterval: number;
     discoveryTimeout: number;
     pollInterval: number;
+    powerStateMode: 'optimistic' | 'confirmed';
     enableSsdp: boolean;
     enableMdns: boolean;
     enableWol: boolean;

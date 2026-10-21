@@ -49,6 +49,8 @@
     "Pairing status": "État de l’appairage",
     "Poll interval": "Intervalle d'interrogation (secondes)",
     "Port": "Port",
+    "Power state after a power command": "État d'alimentation après une commande",
+    "Power state mode help": "Afficher immédiatement : state.power change dès l'envoi de la commande. Attendre le téléviseur : il ne change que lorsque le téléviseur signale le nouvel état, et control.power reste non confirmé jusque-là.",
     "Protocol": "Protocole",
     "Remove": "Retirer",
     "Remove confirmation": "Supprimer ce téléviseur, ses identifiants et toute son arborescence d’objets ?",
@@ -63,6 +65,7 @@
     "Set token": "Définir le jeton",
     "Set token failed": "Échec de la définition du jeton",
     "Settings": "Paramètres",
+    "Show immediately": "Afficher immédiatement",
     "Stable ID": "ID stable",
     "Stable identity note": "L'adresse MAC est utilisée pour suivre les changements d'adresse DHCP. Le nom convivial définit le chemin de l'objet.",
     "TVs found": "%s téléviseurs détectés.",
@@ -73,5 +76,6 @@
     "Token verification unavailable": "Le téléviseur n'a pas pu être contacté pour vérifier le jeton.",
     "Unknown": "Inconnu",
     "Unknown device": "Appareil inconnu",
+    "Wait for the TV": "Attendre le téléviseur",
     "mDNS services": "Services mDNS"
 }

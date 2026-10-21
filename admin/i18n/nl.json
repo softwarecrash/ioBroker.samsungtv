@@ -49,6 +49,8 @@
     "Pairing status": "Koppelingsstatus",
     "Poll interval": "Poll-interval (seconden)",
     "Port": "Haven",
+    "Power state after a power command": "Aan/uit-status na een aan/uit-opdracht",
+    "Power state mode help": "Direct tonen: state.power verandert zodra de opdracht is verzonden. Wachten op de tv: het verandert pas wanneer de tv de nieuwe status meldt, en tot dan blijft control.power onbevestigd.",
     "Protocol": "Protocol",
     "Remove": "Verwijderen",
     "Remove confirmation": "Deze tv, de aanmeldgegevens en de volledige objectboom verwijderen?",
@@ -63,6 +65,7 @@
     "Set token": "Token instellen",
     "Set token failed": "Token instellen mislukt",
     "Settings": "Instellingen",
+    "Show immediately": "Direct tonen",
     "Stable ID": "Stabiele ID",
     "Stable identity note": "Het MAC-adres wordt gebruikt om DHCP-adreswijzigingen te volgen. De beschrijvende naam definieert het objectpad.",
     "TVs found": "%s tv’s gevonden.",
@@ -73,5 +76,6 @@
     "Token verification unavailable": "De tv kon niet worden bereikt om het token te controleren.",
     "Unknown": "Onbekend",
     "Unknown device": "Onbekend apparaat",
+    "Wait for the TV": "Wachten op de tv",
     "mDNS services": "mDNS-diensten"
 }

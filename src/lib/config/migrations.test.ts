@@ -39,6 +39,12 @@ describe('configuration migration', () => {
         assert.equal(result.config.discoveryTimeout, 60);
         assert.equal(result.config.pollInterval, 3600);
     });
+
+    it('keeps the optimistic power state mode unless confirmed is chosen', () => {
+        assert.equal(migrateNativeConfig({}).config.powerStateMode, 'optimistic');
+        assert.equal(migrateNativeConfig({ powerStateMode: 'bogus' }).config.powerStateMode, 'optimistic');
+        assert.equal(migrateNativeConfig({ powerStateMode: 'confirmed' }).config.powerStateMode, 'confirmed');
+    });
 });
 
 describe('secret store', () => {

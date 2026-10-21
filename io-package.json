@@ -154,6 +154,7 @@
     "autoScanInterval": 300,
     "discoveryTimeout": 5,
     "pollInterval": 30,
+    "powerStateMode": "optimistic",
     "enableSsdp": true,
     "enableMdns": true,
     "enableWol": true,
