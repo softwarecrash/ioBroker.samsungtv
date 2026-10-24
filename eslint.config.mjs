@@ -13,7 +13,15 @@ const browserGlobals = {
 export default [
     ...config,
     {
-        ignores: ['admin/build/**', 'build/**', 'lib/hj/Pairing/Encryption/**'],
+        ignores: [
+            'admin/build/**',
+            'admin/custom/**',
+            'build/**',
+            'src/lib/hj/Pairing/Encryption/**',
+            'src-admin/build/**',
+            'src-admin/node_modules/**',
+            'src-admin/vite.config.ts',
+        ],
     },
     {
         rules: {
@@ -37,7 +45,7 @@ export default [
         },
     },
     {
-        files: ['test/**/*.js', '**/*.test.js'],
+        files: ['test/**/*.js', '**/*.test.js', '**/*.test.ts'],
         languageOptions: {
             globals: globals.mocha,
         },

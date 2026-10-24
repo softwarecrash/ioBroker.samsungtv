@@ -30,6 +30,7 @@ jobs:
         with:
           node-version: '22.x'
           lint: true
+          type-checking: true
 
   adapter-tests:
     needs: [check-and-lint]
@@ -69,6 +70,8 @@ jobs:
       - uses: ioBroker/testing-action-deploy@v1
         with:
           node-version: '24.x'
+          # the adapter runs from build/, which is not committed
+          build: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
 #          sentry-token: ${{ secrets.SENTRY_AUTH_TOKEN }}

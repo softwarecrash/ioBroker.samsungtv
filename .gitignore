@@ -19,3 +19,7 @@ admin/build/*.map
 
 #ignore .commitinfo created by ioBroker release script
 .commitinfo
+
+# built admin components (npm run build:admin)
+admin/custom/
+src-admin/build/

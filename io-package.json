@@ -136,6 +136,7 @@
       }
     ],
     "compact": true,
+    "nogit": true,
     "supportedMessages": {
       "deviceManager": true
     }
@@ -149,6 +150,7 @@
   "native": {
     "schemaVersion": 1,
     "devices": [],
+    "scenes": [],
     "tokens": "",
     "autoScan": true,
     "autoScanInterval": 300,
