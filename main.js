@@ -33,7 +33,7 @@ const { boundedSeconds } = require('./lib/timerTools');
 const { evaluateTizenTokenMessage } = require('./lib/tizenTokenTools');
 const { SamsungTvDeviceManagement } = require('./lib/SamsungTvDeviceManagement');
 const { shouldMigrateLegacySamsung } = require('./lib/legacyMigrationTools');
-const { acceptPowerUpdate, startPowerTransition } = require('./lib/powerTransitionTools');
+const { acceptPowerUpdate, runPowerCommand } = require('./lib/powerTransitionTools');
 
 const HJ_DEVICE_CONFIG = {
     appId: '721b6fce-4ee6-48ba-8045-955a539edadb',
@@ -1449,18 +1449,21 @@ function onStateChange(id, state) {
 async function handleControl(device, id, command, value) {
     switch (command) {
         case 'power':
-            await setPower(device, !!value);
             // Poll every 2 s for up to 30 s until the TV reports the new state, without
             // publishing the old state in between.
-            startPowerTransition(device, !!value, {
+            await runPowerCommand(device, !!value, {
+                setPower: () => setPower(device, !!value),
+                publishPower: async () => {
+                    await adapter.setStateAsync(id, !!value, true);
+                    await adapter.setStateAsync(`${device.name}.state.power`, !!value, true);
+                },
+                waitForTv: adapter.config.powerStateMode === 'confirmed',
                 poll: () => pollDevice(device),
                 schedule: (fn, delay) => adapter.setTimeout(fn, delay),
                 now: Date.now,
                 interval: POWER_POLL_INTERVAL,
                 duration: POWER_POLL_DURATION,
             });
-            await adapter.setStateAsync(id, !!value, true);
-            await adapter.setStateAsync(`${device.name}.state.power`, !!value, true);
             return;
         case 'wol':
             if (adapter.config.enableWol && device.mac) {

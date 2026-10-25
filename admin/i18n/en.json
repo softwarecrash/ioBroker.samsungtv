@@ -49,6 +49,8 @@
     "Pairing status": "Pairing status",
     "Poll interval": "Poll interval (seconds)",
     "Port": "Port",
+    "Power state after a power command": "Power state after a power command",
+    "Power state mode help": "Show immediately: state.power changes as soon as the command is sent. Wait for the TV: it only changes once the TV reports the new state, and control.power stays unacknowledged until then.",
     "Protocol": "Protocol",
     "Remove": "Remove",
     "Remove confirmation": "Remove this TV, its credentials, and its complete object tree?",
@@ -63,6 +65,7 @@
     "Set token": "Set token",
     "Set token failed": "Setting the token failed",
     "Settings": "Settings",
+    "Show immediately": "Show immediately",
     "Stable ID": "Stable ID",
     "Stable identity note": "The MAC address is used to follow DHCP address changes. The friendly name defines the object path.",
     "TVs found": "%s TVs found.",
@@ -73,5 +76,6 @@
     "Token verification unavailable": "The TV could not be reached to verify the token.",
     "Unknown": "Unknown",
     "Unknown device": "Unknown device",
+    "Wait for the TV": "Wait for the TV",
     "mDNS services": "mDNS services"
 }

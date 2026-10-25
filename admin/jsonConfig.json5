@@ -51,6 +51,21 @@
                     lg: 3,
                     xl: 3,
                 },
+                powerStateMode: {
+                    type: 'select',
+                    label: 'Power state after a power command',
+                    help: 'Power state mode help',
+                    options: [
+                        { label: 'Show immediately', value: 'optimistic' },
+                        { label: 'Wait for the TV', value: 'confirmed' },
+                    ],
+                    default: 'optimistic',
+                    xs: 12,
+                    sm: 6,
+                    md: 4,
+                    lg: 3,
+                    xl: 3,
+                },
                 _networkHeader: {
                     type: 'header',
                     text: 'Network methods',

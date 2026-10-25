@@ -49,6 +49,8 @@
     "Pairing status": "Stato associazione",
     "Poll interval": "Intervallo di polling (secondi)",
     "Port": "Porta",
+    "Power state after a power command": "Stato di alimentazione dopo un comando",
+    "Power state mode help": "Mostra subito: state.power cambia appena il comando viene inviato. Attendi il televisore: cambia solo quando il televisore segnala il nuovo stato e fino ad allora control.power resta non confermato.",
     "Protocol": "Protocollo",
     "Remove": "Rimuovere",
     "Remove confirmation": "Rimuovere questa TV, le credenziali e l’intero albero degli oggetti?",
@@ -63,6 +65,7 @@
     "Set token": "Imposta token",
     "Set token failed": "Impostazione del token non riuscita",
     "Settings": "Impostazioni",
+    "Show immediately": "Mostra subito",
     "Stable ID": "ID stabile",
     "Stable identity note": "L'indirizzo MAC viene utilizzato per seguire le modifiche dell'indirizzo DHCP. Il nome descrittivo definisce il percorso dell'oggetto.",
     "TVs found": "%s TV rilevate.",
@@ -73,5 +76,6 @@
     "Token verification unavailable": "Non è stato possibile contattare il televisore per verificare il token.",
     "Unknown": "Sconosciuto",
     "Unknown device": "Dispositivo sconosciuto",
+    "Wait for the TV": "Attendi il televisore",
     "mDNS services": "Servizi mDNS"
 }
